@@ -1830,27 +1830,138 @@
         }
 
         /* ═════════════════ 배경음악 ═════════════════ */
-        // 저작권 걱정 없이 브라우저에서 직접 연주하는 잔잔한 피아노 음악입니다.
+        // 음원 파일 없이 브라우저가 직접 연주합니다. 저자마다 삶에 어울리는 곡·악기·리듬이 다릅니다.
+        // play(c, s, t, d, bar, nc): c=이번 마디 화음, s=마디 안의 박 위치, t=시각, d=한 칸 길이, nc=다음 마디 화음
+        const rnd = a => a[Math.floor(Math.random() * a.length)];
         const BGM_MOODS = {
             lobby: {
-                name: '밤의 서재', bpm: 62, meter: 4,
+                name: '밤의 서재', bpm: 62, meter: 4, sub: 2, pad: ['warm', .035],
                 prog: [[53, 57, 60, 64], [52, 55, 59, 62], [50, 53, 57, 60], [48, 52, 55, 59, 62]],
-                arp: [0, null, 1, 2, 3, null, 2, null], mel: [4, 7], melP: .35
+                play(c, s, t) {
+                    if (s === 0) N(c[0] - 12, t, .3, 3.2, 'piano');
+                    const a = [0, null, 1, 2, 3, null, 2, null][s];
+                    if (a !== null) N(c[a % c.length] + 12, t, .13 + Math.random() * .04, 2.6, 'piano');
+                    if ((s === 4 || s === 7) && Math.random() < .35) N(rnd(c) + 24, t, .07, 2.4, 'bell');
+                }
             },
+            // 1 황재복 · 웨딩드레스 디자이너 — 3박자 왈츠와 오르골
             wedding: {
-                name: '신부의 왈츠', bpm: 80, meter: 3,
+                name: '신부의 왈츠', bpm: 80, meter: 3, sub: 2, pad: ['strings', .028],
                 prog: [[48, 52, 55], [45, 48, 52], [41, 45, 48], [43, 47, 50], [40, 43, 48], [41, 45, 48], [38, 41, 45, 48], [43, 47, 50, 53]],
-                waltz: true, mel: [0, 3], melP: .55
+                play(c, s, t) {
+                    if (s === 0) N(c[0] - 12, t, .3, 2.6, 'piano');
+                    if (s === 2 || s === 4) c.slice(1).forEach(n => N(n + 12, t, .1, 1.3, 'piano'));
+                    if ((s === 0 || s === 3) && Math.random() < .6) N(rnd(c) + 24 + (Math.random() < .3 ? 12 : 0), t, .075, 2.2, 'bell');
+                }
             },
-            memoir: {
-                name: '추억의 페이지', bpm: 64, meter: 4,
-                prog: [[45, 48, 52], [41, 45, 48], [48, 52, 55], [43, 47, 50]],
-                arp: [0, 1, 2, 3, 2, 1, 2, 3], mel: [3, 6], melP: .3
+            // 2 김철수 · 정밀 기계 명장 — 시계태엽처럼 정확한 마림바 반복과 째깍 소리
+            craft: {
+                name: '장인의 톱니바퀴', bpm: 96, meter: 4, sub: 2, pad: ['warm', .022],
+                prog: [[50, 53, 57, 60, 64], [52, 55, 59, 62], [53, 57, 60, 64], [52, 55, 59, 62, 67]],
+                play(c, s, t) {
+                    N(c[[0, 2, 1, 3, 0, 2, 1, 4][s] % c.length] + 12, t, .12, .7, 'mallet');
+                    if (s === 0 || s === 4) N(c[0] - 12, t, .22, 1.2, 'mallet');
+                    if (s % 2 === 0) bgmTick(t, s === 0 ? .05 : .03);
+                    if (s === 6 && Math.random() < .4) N(c[2] + 24, t, .05, .9, 'bell');
+                }
+            },
+            // 3 이영희 · 전통 섬유 공예가 — 평조 오음계 가야금과 굿거리 장단
+            textile: {
+                name: '한 올의 가락', bpm: 54, meter: 4, sub: 3, pad: ['drone', .05],
+                prog: [[48, 55, 60, 62, 67], [45, 52, 57, 60, 62], [41, 48, 53, 57, 60], [43, 50, 55, 57, 62]],
+                scale: [60, 62, 65, 67, 69, 72, 74, 77, 79, 81],
+                play(c, s, t, d) {
+                    if (s === 0) { bgmDrum(t, .28, 72); N(c[0], t, .14, 3, 'gayageum'); }
+                    if (s === 6) bgmDrum(t, .14, 96);
+                    if (s === 9) bgmDrum(t, .18, 72);
+                    if ([0, 3, 5, 6, 9, 11].includes(s) && Math.random() < .7) {
+                        const sc = this.scale; bgm.walk = Math.max(0, Math.min(sc.length - 1, (bgm.walk ?? 4) + rnd([-2, -1, -1, 1, 1, 2])));
+                        N(sc[bgm.walk], t, .13, s % 3 === 0 ? 2.4 : 1.2, 'gayageum');
+                    }
+                }
+            },
+            // 4 박민수 · 항해사 — 6/8 뱃노래 리듬, 하프 물결과 파도 소리
+            sea: {
+                name: '수평선의 뱃노래', bpm: 50, meter: 2, sub: 3, pad: ['strings', .03], amb: 'waves',
+                prog: [[51, 55, 58, 62], [48, 51, 55, 58], [44, 48, 51, 55], [46, 50, 53, 58]],
+                play(c, s, t) {
+                    if (s === 0) N(c[0] - 12, t, .28, 3.5, 'piano');
+                    N(c[[0, 1, 2, 3, 2, 1][s] % c.length] + 12 + (s === 3 ? 12 : 0), t, .1, 2.6, 'harp');
+                    if (s === 3 && Math.random() < .45) N(rnd(c) + 24, t, .06, 2.8, 'bell');
+                }
+            },
+            // 5 정수진 · 마을 보건소 간호사 — 느린 자장가 피아노와 포근한 현악
+            care: {
+                name: '따뜻한 손길', bpm: 56, meter: 4, sub: 2, pad: ['strings', .034],
+                prog: [[53, 57, 60, 64], [52, 55, 60, 64], [50, 53, 57, 60], [46, 50, 53, 58], [53, 57, 60, 65], [46, 50, 57, 62], [43, 50, 53, 58], [48, 52, 55, 58]],
+                play(c, s, t) {
+                    if (s === 0) N(c[0] - 12, t, .24, 3.6, 'piano');
+                    const a = [null, null, 1, null, 2, null, 3, null][s];
+                    if (a !== null) N(c[a % c.length], t, .085, 2.4, 'piano');
+                    if ((s === 0 || s === 4) && Math.random() < .65) N(c[c.length - 1] + 12 + rnd([0, 2, -1]), t + .02, .085, 2.8, 'piano');
+                }
+            },
+            // 6 최동훈 · 건축가 — 구조물처럼 쌓이는 미니멀 반복 아르페지오
+            architect: {
+                name: '빛의 설계도', bpm: 108, meter: 4, sub: 2, pad: ['warm', .02],
+                prog: [[45, 52, 57, 59, 64], [41, 48, 57, 60, 65], [43, 50, 55, 59, 62], [40, 47, 55, 59, 64]],
+                play(c, s, t) {
+                    N(c[[1, 2, 3, 4, 3, 2, 3, 4][s]] + 12, t, .08, 1.1, 'piano');
+                    if (s === 0 || s === 3 || s === 6) c.slice(2).forEach(n => N(n, t, .05, .9, 'epiano'));
+                    if (s === 0) N(c[0] - 12, t, .22, 2.2, 'piano');
+                    if (bgm.bar % 2 === 1 && s === 4) N(c[4] + 24, t, .05, 1.6, 'bell');
+                }
+            },
+            // 7 강미숙 · 동화 구연가 — 반짝이는 오르골 왈츠와 콕콕 피치카토
+            fairy: {
+                name: '별빛 동화', bpm: 100, meter: 3, sub: 2, pad: ['warm', .018],
+                prog: [[43, 55, 59, 62], [40, 55, 59, 64], [36, 55, 60, 64], [38, 54, 57, 62]],
+                play(c, s, t) {
+                    if (s === 0) N(c[0], t, .2, .45, 'pluck');
+                    if (s === 2 || s === 4) N(c[1], t, .12, .35, 'pluck');
+                    N(c[[1, 2, 3, 2, 3, 1][s]] + 24, t, .065, 1.6, 'bell');
+                    if (Math.random() < .12) N(rnd(c) + 36, t + .05, .04, 1.2, 'bell');
+                }
+            },
+            // 8 윤성호 · 과수원 경영인 — 통기타 스트로크와 새소리
+            orchard: {
+                name: '사과꽃 언덕', bpm: 84, meter: 4, sub: 2, pad: ['warm', .02], amb: 'birds',
+                prog: [[43, 47, 50, 55, 59, 67], [48, 52, 55, 60, 64], [50, 54, 57, 62, 66], [43, 47, 50, 55, 59, 67], [40, 47, 52, 55, 59, 64], [48, 52, 55, 60, 64], [50, 54, 57, 62, 66], [43, 47, 50, 55, 59, 67]],
+                play(c, s, t) {
+                    if (s === 0) N(c[0] - 12, t, .24, 1.2, 'pluck');
+                    if (s === 4) N(c[2] - 12, t, .2, 1.2, 'pluck');
+                    if ([0, 2, 3, 5, 6, 7].includes(s)) bgmStrum(c.slice(1), t, s % 2 === 0, s === 0 || s === 6 ? .075 : .05);
+                }
+            },
+            // 9 한정숙 · 합창 지휘자 — 찬송가풍 합창 화음과 오르간
+            choir: {
+                name: '하나의 화음', bpm: 60, meter: 4, sub: 2, pad: ['choir', .065],
+                prog: [[46, 53, 58, 62, 65], [43, 51, 55, 58, 63], [41, 53, 57, 60, 65], [43, 50, 55, 58, 62], [39, 51, 55, 58, 63], [41, 53, 58, 62, 65], [41, 53, 57, 60, 64], [46, 53, 58, 62, 65]],
+                play(c, s, t, d) {
+                    if (s === 0) N(c[0] - 12, t, .07, d * 8, 'organ');
+                    if (s === 0 || s === 4) N(c[c.length - 1] + 12, t, .075, 2.6, 'piano');
+                    if (s === 6 && Math.random() < .5) N(c[c.length - 2] + 12, t, .06, 1.6, 'piano');
+                }
+            },
+            // 10 오태식 · 집배원 & 마을 사진가 — 골목을 걷는 스윙 재즈 워킹베이스
+            alley: {
+                name: '골목길 산책', bpm: 104, meter: 4, sub: 2, swing: true, pad: null,
+                prog: [[41, 52, 57, 60, 64], [38, 53, 57, 60, 65], [43, 53, 58, 62, 65], [36, 52, 58, 62, 64]],
+                play(c, s, t, d, bar, nc) {
+                    if (s % 2 === 0) {
+                        const r = c[0], walk = [r, r + rnd([2, 4]), r + 7, nc[0] + rnd([-1, 1])];
+                        N(walk[s / 2], t, .13, .55, 'bass');
+                    }
+                    if (s === 2 || s === 6) bgmHat(t, .05);
+                    if (s === 7 || s === 3) bgmHat(t, .025);
+                    if (s === 3 || (s === 6 && Math.random() < .5)) c.slice(1, 4).forEach(n => N(n, t, .055, .5, 'epiano'));
+                    if ((s === 1 || s === 4) && Math.random() < .3) N(rnd(c.slice(2)) + 12, t, .06, .9, 'epiano');
+                }
             }
         };
-        const MEMBER_MOOD = { 1: 'wedding' };
+        const MEMBER_MOOD = { 1: 'wedding', 2: 'craft', 3: 'textile', 4: 'sea', 5: 'care', 6: 'architect', 7: 'fairy', 8: 'orchard', 9: 'choir', 10: 'alley' };
         const BGM_VOL = .42, BGM_DUCK = .07;
-        const bgm = { ctx: null, master: null, wet: null, dry: null, on: false, timer: null, mood: 'lobby', pending: null, shift: 0, pendingShift: 0, step: 0, bar: 0, next: 0, gain: 0 };
+        const bgm = { ctx: null, master: null, bus: null, on: false, timer: null, mood: 'lobby', pending: null, step: 0, bar: 0, next: 0, gain: 0, amb: null, ambKind: null, noise: null };
         const hz = n => 440 * Math.pow(2, (n - 69) / 12);
 
         function bgmInit() {
@@ -1861,75 +1972,139 @@
             const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 3;
             bgm.master = ctx.createGain(); bgm.master.gain.value = 0;
             bgm.master.connect(comp); comp.connect(ctx.destination);
-            bgm.dry = ctx.createGain(); bgm.dry.gain.value = .75; bgm.dry.connect(bgm.master);
+            const dry = ctx.createGain(); dry.gain.value = .75; dry.connect(bgm.master);
             const rev = ctx.createConvolver(), len = ctx.sampleRate * 3.2, ir = ctx.createBuffer(2, len, ctx.sampleRate);
-            for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+            for (let ch = 0; ch < 2; ch++) { const x = ir.getChannelData(ch); for (let i = 0; i < len; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
             rev.buffer = ir;
-            bgm.wet = ctx.createGain(); bgm.wet.gain.value = .5;
-            rev.connect(bgm.wet); bgm.wet.connect(bgm.master);
-            bgm.bus = ctx.createGain(); bgm.bus.connect(bgm.dry); bgm.bus.connect(rev);
+            const wet = ctx.createGain(); wet.gain.value = .5; rev.connect(wet); wet.connect(bgm.master);
+            bgm.bus = ctx.createGain(); bgm.bus.connect(dry); bgm.bus.connect(rev);
+            const nb = bgm.noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), nd = nb.getChannelData(0);
+            for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
             return true;
         }
-        function bgmNote(n, t, vel, len, kind) {
-            const ctx = bgm.ctx, f = hz(n), g = ctx.createGain(), lp = ctx.createBiquadFilter();
-            lp.type = 'lowpass'; lp.frequency.value = kind === 'bell' ? 5200 : 2200 + vel * 1600;
+        // 악기 소리: 배음(배수, 파형, 크기) 조합과 필터로 음색을 만듭니다.
+        const VOICES = {
+            piano: { parts: [[1, 'triangle', 1], [2, 'sine', .25], [1.003, 'sine', .4]], lp: 2600, hold: .35 },
+            bell: { parts: [[1, 'sine', 1], [2, 'sine', .2], [3.01, 'sine', .12]], lp: 6000, hold: .3 },
+            mallet: { parts: [[1, 'sine', 1], [4, 'sine', .18], [10, 'sine', .04]], lp: 5000, hold: .12 },
+            harp: { parts: [[1, 'triangle', 1], [2, 'sine', .35], [3, 'sine', .1]], lp: 3600, hold: .4 },
+            pluck: { parts: [[1, 'sawtooth', .5], [1, 'triangle', .8]], lp: 1900, sweep: 500, hold: .18 },
+            gayageum: { parts: [[1, 'sawtooth', .45], [1, 'triangle', .9], [2, 'sine', .15]], lp: 2400, sweep: 700, hold: .3, vib: true },
+            epiano: { parts: [[1, 'sine', 1], [2, 'sine', .12], [7, 'sine', .04]], lp: 3000, hold: .45 },
+            organ: { parts: [[1, 'sine', 1], [2, 'sine', .5], [3, 'sine', .25]], lp: 1600, hold: 1, organ: true },
+            bass: { parts: [[1, 'triangle', 1], [2, 'sine', .2]], lp: 700, hold: .5 }
+        };
+        function N(n, t, vel, len, voice) {
+            const ctx = bgm.ctx, v = VOICES[voice] || VOICES.piano, f = hz(n), g = ctx.createGain(), lp = ctx.createBiquadFilter();
+            lp.type = 'lowpass';
+            if (v.sweep) { lp.frequency.setValueAtTime(v.lp + vel * 2000, t); lp.frequency.exponentialRampToValueAtTime(v.sweep, t + .35); }
+            else lp.frequency.value = v.lp + vel * 1500;
             g.gain.setValueAtTime(0, t);
-            g.gain.linearRampToValueAtTime(vel, t + .008);
-            g.gain.exponentialRampToValueAtTime(vel * .35, t + .25);
-            g.gain.exponentialRampToValueAtTime(.0001, t + len);
-            const parts = kind === 'bell' ? [[1, 'sine', 1], [3.01, 'sine', .12], [2, 'sine', .2]] : [[1, 'triangle', 1], [2, 'sine', .25], [1.003, 'sine', .4]];
-            parts.forEach(([mul, type, amp]) => {
+            if (v.organ) { g.gain.linearRampToValueAtTime(vel, t + .08); g.gain.setValueAtTime(vel, t + len * .85); g.gain.linearRampToValueAtTime(0, t + len); }
+            else {
+                g.gain.linearRampToValueAtTime(vel, t + .006);
+                g.gain.exponentialRampToValueAtTime(vel * v.hold, t + .22);
+                g.gain.exponentialRampToValueAtTime(.0001, t + len);
+            }
+            let lfo = null;
+            if (v.vib && len > 1.5) {   // 가야금 농현: 줄을 눌러 떠는 소리
+                lfo = ctx.createOscillator(); const lg = ctx.createGain();
+                lfo.frequency.value = 5.2; lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(28, t + .6);
+                lfo.connect(lg); lfo.start(t); lfo.stop(t + len + .05); lfo._g = lg;
+            }
+            v.parts.forEach(([mul, type, amp]) => {
                 const o = ctx.createOscillator(), og = ctx.createGain();
                 o.type = type; o.frequency.value = f * mul; og.gain.value = amp;
+                if (lfo) lfo._g.connect(o.detune);
                 o.connect(og); og.connect(g); o.start(t); o.stop(t + len + .05);
             });
             g.connect(lp); lp.connect(bgm.bus);
         }
-        function bgmPad(chord, t, dur) {
-            const ctx = bgm.ctx, g = ctx.createGain(), lp = ctx.createBiquadFilter();
-            lp.type = 'lowpass'; lp.frequency.value = 650; lp.Q.value = .4;
+        function bgmPad(kind, vol, chord, t, dur) {
+            const ctx = bgm.ctx, g = ctx.createGain(), out = ctx.createBiquadFilter();
+            out.type = 'lowpass'; out.frequency.value = { warm: 650, strings: 1500, choir: 2400, drone: 500 }[kind] || 650;
+            const att = kind === 'choir' ? 1.2 : Math.min(1.6, dur * .4);
             g.gain.setValueAtTime(0, t);
-            g.gain.linearRampToValueAtTime(.035, t + Math.min(1.6, dur * .4));
-            g.gain.setValueAtTime(.035, t + dur * .75);
-            g.gain.linearRampToValueAtTime(0, t + dur + .6);
-            chord.slice(0, 3).forEach(n => [-6, 6].forEach(det => {
-                const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = hz(n); o.detune.value = det;
-                o.connect(g); o.start(t); o.stop(t + dur + .7);
+            g.gain.linearRampToValueAtTime(vol, t + att);
+            g.gain.setValueAtTime(vol, t + dur * .8);
+            g.gain.linearRampToValueAtTime(0, t + dur + .7);
+            let dest = g;
+            if (kind === 'choir') {   // '아-' 모음 소리: 사람 목소리의 공명대역만 남깁니다
+                dest = ctx.createGain();
+                [[730, 1], [1090, .55], [2440, .2]].forEach(([fr, a]) => { const bp = ctx.createBiquadFilter(), ga = ctx.createGain(); bp.type = 'bandpass'; bp.frequency.value = fr; bp.Q.value = 7; ga.gain.value = a; dest.connect(bp); bp.connect(ga); ga.connect(g); });
+            }
+            const notes = kind === 'drone' ? [chord[0] - 12, chord[0] - 5] : kind === 'choir' ? chord.slice(1) : chord.slice(0, 3);
+            notes.forEach(n => [-7, 7].forEach(det => {
+                const o = ctx.createOscillator(); o.type = kind === 'drone' ? 'triangle' : 'sawtooth'; o.frequency.value = hz(n); o.detune.value = det + (kind === 'choir' ? Math.random() * 8 - 4 : 0);
+                if (kind === 'strings' || kind === 'choir') { const l = ctx.createOscillator(), lg = ctx.createGain(); l.frequency.value = 4.6 + Math.random(); lg.gain.value = 9; l.connect(lg); lg.connect(o.detune); l.start(t); l.stop(t + dur + .8); }
+                o.connect(dest); o.start(t); o.stop(t + dur + .8);
             }));
-            g.connect(lp); lp.connect(bgm.bus);
+            g.connect(out); out.connect(bgm.bus);
+        }
+        function bgmNoise(t, len, type, freq, q, vol, dest) {
+            const ctx = bgm.ctx, src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+            src.buffer = bgm.noise; f.type = type; f.frequency.value = freq; f.Q.value = q;
+            g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + len);
+            src.connect(f); f.connect(g); g.connect(dest || bgm.bus); src.start(t, Math.random()); src.stop(t + len + .05);
+        }
+        const bgmHat = (t, v) => bgmNoise(t, .06, 'highpass', 7500, .7, v, bgm.master);
+        const bgmTick = (t, v) => bgmNoise(t, .025, 'bandpass', 3200, 4, v, bgm.master);
+        function bgmDrum(t, vel, fr) {   // 장구 '덩·쿵'
+            const ctx = bgm.ctx, o = ctx.createOscillator(), g = ctx.createGain();
+            o.frequency.setValueAtTime(fr * 2, t); o.frequency.exponentialRampToValueAtTime(fr, t + .12);
+            g.gain.setValueAtTime(vel, t); g.gain.exponentialRampToValueAtTime(.0001, t + .5);
+            o.connect(g); g.connect(bgm.master); o.start(t); o.stop(t + .55);
+            bgmNoise(t, .08, 'bandpass', 1800, 1.5, vel * .25, bgm.master);
+        }
+        function bgmStrum(notes, t, down, vel) {   // 통기타 스트로크: 줄마다 조금씩 늦게 울립니다
+            (down ? notes : notes.slice().reverse().slice(0, 4)).forEach((n, i) => N(n, t + i * .014, vel * (down ? 1 : .8), 1.1, 'pluck'));
+        }
+        function bgmChirp(t) {
+            const ctx = bgm.ctx, base = 2600 + Math.random() * 1400;
+            for (let k = 0; k < 2 + Math.floor(Math.random() * 3); k++) {
+                const o = ctx.createOscillator(), g = ctx.createGain(), s = t + k * .11;
+                o.frequency.setValueAtTime(base, s); o.frequency.exponentialRampToValueAtTime(base * 1.45, s + .07);
+                g.gain.setValueAtTime(0, s); g.gain.linearRampToValueAtTime(.022, s + .015); g.gain.exponentialRampToValueAtTime(.0001, s + .09);
+                o.connect(g); g.connect(bgm.bus); o.start(s); o.stop(s + .1);
+            }
+        }
+        function bgmAmbience(kind) {   // 계속 흐르는 배경 소리 (파도)
+            if (bgm.ambKind === kind) return;
+            const ctx = bgm.ctx, now = ctx.currentTime;
+            if (bgm.amb) { const a = bgm.amb; a.g.gain.setTargetAtTime(0, now, .8); setTimeout(() => { try { a.src.stop(); a.lfo.stop(); } catch (e) { } }, 4000); bgm.amb = null; }
+            bgm.ambKind = kind;
+            if (kind !== 'waves') return;
+            const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(), sw = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+            src.buffer = bgm.noise; src.loop = true; f.type = 'lowpass'; f.frequency.value = 520;
+            lfo.frequency.value = .09; lg.gain.value = .5; sw.gain.value = .55; lfo.connect(lg); lg.connect(sw.gain);
+            g.gain.setValueAtTime(0, now); g.gain.linearRampToValueAtTime(.09, now + 3);
+            src.connect(f); f.connect(sw); sw.connect(g); g.connect(bgm.master);
+            src.start(now); lfo.start(now);
+            bgm.amb = { src, lfo, g };
         }
         function bgmSchedule() {
             const ctx = bgm.ctx;
-            const target = (typeof vid !== 'undefined' && vid.playing) || (typeof aud !== 'undefined' && aud.playing) ? BGM_DUCK : BGM_VOL;
+            const target = (vid.playing || aud.playing) ? BGM_DUCK : BGM_VOL;
             if (bgm.on && Math.abs(bgm.gain - target) > .001) { bgm.master.gain.setTargetAtTime(target, ctx.currentTime, .6); bgm.gain = target; }
             while (bgm.next < ctx.currentTime + .35) {
-                const spb = bgm.meter * 2;
-                if (bgm.step === 0 && bgm.pending) { bgm.mood = bgm.pending; bgm.shift = bgm.pendingShift; bgm.pending = null; bgm.bar = 0; }
-                const M = BGM_MOODS[bgm.mood], step8 = 60 / M.bpm / 2, t = bgm.next;
-                if (bgm.step === 0) bgm.meter = M.meter;
-                const chord = M.prog[bgm.bar % M.prog.length].map(n => n + bgm.shift), s = bgm.step;
-                if (s === 0) { bgmPad(chord, t, step8 * M.meter * 2); bgmNote(chord[0] - 12, t, .3, 3.2, 'piano'); }
-                if (M.waltz) {
-                    if (s === 2 || s === 4) chord.slice(1).forEach(n => bgmNote(n + 12, t, .11, 1.4, 'piano'));
-                } else if (M.arp[s] !== null && M.arp[s] !== undefined) {
-                    const n = chord[M.arp[s] % chord.length] + (M.arp[s] >= chord.length ? 24 : 12);
-                    bgmNote(n, t, .13 + Math.random() * .04, 2.6, 'piano');
-                }
-                if (M.mel.includes(s) && Math.random() < M.melP) {
-                    const n = chord[Math.floor(Math.random() * chord.length)] + 24 + (Math.random() < .3 ? 12 : 0);
-                    bgmNote(n, t + (Math.random() * .03), .07, 2.4, 'bell');
-                }
-                bgm.next += step8;
-                bgm.step = (s + 1) % (bgm.meter * 2);
+                if (bgm.step === 0 && bgm.pending) { bgm.mood = bgm.pending; bgm.pending = null; bgm.bar = 0; bgm.walk = null; }
+                const M = BGM_MOODS[bgm.mood], d = 60 / M.bpm / M.sub, spb = M.meter * M.sub, s = bgm.step;
+                if (s === 0) bgmAmbience(M.amb || null);
+                const c = M.prog[bgm.bar % M.prog.length], nc = M.prog[(bgm.bar + 1) % M.prog.length];
+                const t = bgm.next + (M.swing && s % 2 ? d * .34 : 0);
+                if (s === 0 && M.pad) bgmPad(M.pad[0], M.pad[1], c, t, d * spb);
+                M.play(c, s, t, d, bgm.bar, nc);
+                if (M.amb === 'birds' && Math.random() < .025) bgmChirp(t + Math.random() * d);
+                bgm.next += d;
+                bgm.step = (s + 1) % spb;
                 if (bgm.step === 0) bgm.bar++;
             }
         }
         function bgmSetMood(m) {
-            const mood = m ? (MEMBER_MOOD[m.id] || 'memoir') : 'lobby';
-            const shift = m && mood === 'memoir' ? [0, 2, -2, 3, -3, 1, -1, 4, -4, 5][m.id % 10] : 0;
-            if (mood === bgm.mood && shift === bgm.shift && !bgm.pending) return;
-            if (!bgm.on) { bgm.mood = mood; bgm.shift = shift; bgm.pending = null; bgm.bar = 0; }
-            else { bgm.pending = mood; bgm.pendingShift = shift; }
+            const mood = m ? (MEMBER_MOOD[m.id] || 'lobby') : 'lobby';
+            if (mood === (bgm.pending || bgm.mood)) return;
+            if (!bgm.on) { bgm.mood = mood; bgm.pending = null; bgm.bar = 0; }
+            else bgm.pending = mood;
             setBgmBtn();
         }
         function bgmStart() {
@@ -1938,7 +2113,8 @@
             ctx.resume();
             bgm.on = true;
             if (!bgm.timer) {
-                bgm.step = 0; bgm.meter = BGM_MOODS[bgm.pending || bgm.mood].meter; bgm.next = ctx.currentTime + .1;
+                if (bgm.pending) { bgm.mood = bgm.pending; bgm.pending = null; }
+                bgm.step = 0; bgm.bar = 0; bgm.next = ctx.currentTime + .1;
                 bgm.timer = setInterval(bgmSchedule, 60);
             }
             bgm.master.gain.cancelScheduledValues(ctx.currentTime);
@@ -1952,19 +2128,19 @@
             const ctx = bgm.ctx;
             bgm.master.gain.cancelScheduledValues(ctx.currentTime);
             bgm.master.gain.setTargetAtTime(0, ctx.currentTime, .35);
-            setTimeout(() => { if (!bgm.on) { clearInterval(bgm.timer); bgm.timer = null; ctx.suspend(); } }, 1600);
+            setTimeout(() => { if (!bgm.on) { clearInterval(bgm.timer); bgm.timer = null; bgmAmbience(null); ctx.suspend(); } }, 1600);
         }
         function setBgmBtn() {
             const b = $('bgmBtn'); if (!b) return;
             const M = BGM_MOODS[bgm.pending || bgm.mood];
             b.classList.toggle('on', bgm.on);
             b.setAttribute('aria-pressed', bgm.on);
-            b.title = bgm.on ? `배경음악 끄기 · 지금 흐르는 곡: ${M.name}` : '잔잔한 배경음악 켜기';
+            b.title = bgm.on ? `배경음악 끄기 · 지금 흐르는 곡: ${M.name}` : `배경음악 켜기 · ${M.name}`;
             $('bgmLabel').textContent = bgm.on ? M.name : '배경음악';
         }
         function toggleBgm() {
             if (bgm.on) { bgmStop(); store.set('hjb-bgm', false); toast('배경음악을 껐습니다'); }
-            else if (bgmStart()) { store.set('hjb-bgm', true); toast(`배경음악 · ${BGM_MOODS[bgm.pending || bgm.mood].name}`); }
+            else if (bgmStart()) { store.set('hjb-bgm', true); toast(`♪ ${BGM_MOODS[bgm.mood].name}`); }
             setBgmBtn();
         }
         document.addEventListener('visibilitychange', () => {
