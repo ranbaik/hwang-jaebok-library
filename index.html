@@ -803,9 +803,9 @@
                     { year: "수상", title: "대한민국 패션대상 외", desc: "삼우당 대한민국 섬유패션대상, 섬유의 날 국무총리 표창 수상" }
                 ],
                 photos: [
-                    { theme: "배움의 기록", year: "디자인대학원 시절", title: "첫 드레스 스케치", icon: "pen-tool", story: "영문학도에서 의상디자이너로, 처음 그린 드레스 스케치에는 앞으로 걸어갈 길에 대한 설렘이 담겨 있습니다." },
-                    { theme: "빛나는 무대", year: "미스코리아 무대", title: "지정 디자이너로 함께한 무대", icon: "crown", story: "미스코리아와 슈퍼모델 선발대회의 지정 디자이너이자 심사위원으로 무대에 오르는 이들의 빛나는 순간을 함께했습니다." },
-                    { theme: "인생의 황금기", year: "2026년 가을", title: "황재복 라이브러리 헌정식", icon: "sparkles", story: "열 분의 자서전이 완성되던 날, 함께 모여 서로의 인생을 축복하며 남긴 기념사진입니다." }
+                    { theme: "웨딩 클래식", year: "웨딩 화보", title: "황재복 웨딩 클래식 화보", icon: "camera", image: "images/hjb-wedding-classic.jpg", pos: "70% center", story: "'HWANG JAE BOCK WEDDING CLASSIC' 간판이 걸린 하얀 건물 앞, 드레스를 입은 신부가 강아지와 함께 거리를 걷는 화보입니다. 격식 있는 웨딩드레스를 일상의 한 장면 속에 자연스럽게 담아냈습니다." },
+                    { theme: "빛나는 무대", year: "컬렉션 피날레", title: "런웨이 위의 피날레 인사", icon: "crown", image: "images/hjb-runway.jpg", pos: "center 30%", story: "'황재복' 이름이 걸린 무대 위, 드레스를 입은 모델들을 뒤로하고 꽃다발을 든 채 관객에게 인사하는 컬렉션 피날레의 순간입니다." },
+                    { theme: "황재복하우스", year: "부티크에서", title: "부티크에서의 한때", icon: "sparkles", image: "images/hjb-boutique.jpg", pos: "center 25%", story: "다마스크 벽지와 웨딩 포트레이트 액자가 걸린 부티크에서 책 한 권을 들고 미소 짓는 모습입니다. 수많은 신부들이 드레스를 처음 만난 공간이기도 합니다." }
                 ],
                 voices: [
                     {
@@ -1506,9 +1506,11 @@
             $('photoCardsGrid').innerHTML = cur.photos.map((p, i) => `
                 <button onclick="openPhoto(${i})" class="polaroid text-left" style="--r:${[-2.4, 1.8, -1.2][i]}deg">
                     <span class="tape"></span>
-                    <div class="photo-visual" style="${photoBg(i)}">
-                        <div class="w-20 h-20 rounded-full grid place-items-center ${i === 2 ? 'bg-white/60 text-terracottaDark' : 'bg-white/10 text-paper/90'} ring-1 ring-white/30 backdrop-blur-sm">${ic(p.icon, 'w-10 h-10')}</div>
-                        <span class="absolute bottom-3 right-3 z-10 text-[10px] tracking-[.2em] font-bold ${i === 2 ? 'text-ink/50' : 'text-paper/60'}">NO. ${pad(i + 1)}</span>
+                    <div class="photo-visual" style="${p.image ? 'background:#1B140F' : photoBg(i)}">
+                        ${p.image
+                            ? `<img src="${p.image}" alt="${esc(p.title)}" loading="lazy" class="absolute inset-0 w-full h-full object-cover" style="object-position:${p.pos || 'center'}">`
+                            : `<div class="w-20 h-20 rounded-full grid place-items-center ${i === 2 ? 'bg-white/60 text-terracottaDark' : 'bg-white/10 text-paper/90'} ring-1 ring-white/30 backdrop-blur-sm">${ic(p.icon, 'w-10 h-10')}</div>`}
+                        <span class="absolute bottom-3 right-3 z-10 text-[10px] tracking-[.2em] font-bold ${p.image ? 'text-white/80 drop-shadow' : i === 2 ? 'text-ink/50' : 'text-paper/60'}">NO. ${pad(i + 1)}</span>
                     </div>
                     <div class="pt-4 px-1">
                         <div class="flex items-center justify-between gap-2">
@@ -1522,8 +1524,13 @@
         }
         function openPhoto(i) {
             const p = cur.photos[i];
+            if (p.image) {
+                $('modalPhotoVisual').setAttribute('style', 'background:#0A0706;aspect-ratio:auto');
+                $('modalPhotoVisual').innerHTML = `<img src="${p.image}" alt="${esc(p.title)}" class="relative block w-full max-h-[62vh] object-contain">`;
+            } else {
             $('modalPhotoVisual').setAttribute('style', photoBg(i) + 'aspect-ratio:16/9');
             $('modalPhotoVisual').innerHTML = `<div class="w-24 h-24 rounded-full grid place-items-center ${i === 2 ? 'bg-white/60 text-terracottaDark' : 'bg-white/10 text-paper'} ring-1 ring-white/30">${ic(p.icon, 'w-12 h-12')}</div>`;
+            }
             $('modalPhotoTheme').textContent = p.theme;
             $('modalPhotoYear').textContent = p.year;
             $('modalPhotoTitle').textContent = p.title;
@@ -1537,10 +1544,10 @@
         /* ── 비교 슬라이더 ── */
         function renderCompare() {
             const a = cur.photos[0], b = cur.photos[cur.photos.length - 1];
-            $('compareBeforeYear').textContent = `젊은 시절의 기록 · ${a.year}`;
+            $('compareBeforeYear').textContent = `${a.theme} · ${a.year}`;
             $('compareBeforeText').textContent = a.title;
             $('compareBeforeSub').textContent = a.story;
-            $('compareAfterYear').textContent = `오늘의 리마인드 · ${b.year}`;
+            $('compareAfterYear').textContent = `${b.theme} · ${b.year}`;
             $('compareAfterText').textContent = b.title;
             $('compareAfterSub').textContent = b.story;
             setCompare(50);
