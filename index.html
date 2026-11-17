@@ -287,7 +287,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
             <button onclick="navigateToLobby()" class="flex items-center gap-3 text-left group focus:outline-none">
                 <div class="relative w-11 h-11 rounded-full border border-gold/60 flex items-center justify-center text-goldLight group-hover:bg-gold group-hover:text-night transition-colors">
-                    <span class="font-serif font-black text-lg leading-none">黃</span>
+                    <span class="font-serif font-black text-lg leading-none">福</span>
                 </div>
                 <div>
                     <span class="block font-serif font-bold text-lg sm:text-xl tracking-tight text-paper">황재복 라이브러리</span>
@@ -299,7 +299,7 @@
                 <div class="relative hidden md:block">
                     <select id="quickSwitcher" onchange="handleQuickSwitch(this.value)" aria-label="다른 분의 서재로 바로 가기"
                         class="appearance-none bg-white/5 hover:bg-white/10 border border-gold/25 text-paper text-sm font-medium rounded-full pl-5 pr-10 py-2.5 focus:outline-none focus:border-gold cursor-pointer transition-colors">
-                        <option value="lobby">메인 로비 · 10인의 서재 전체</option>
+                        <option value="lobby">메인 로비 · 당신의 아카이브</option>
                     </select>
                     <i data-lucide="chevron-down" class="w-4 h-4 text-goldLight absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                 </div>
@@ -335,20 +335,16 @@
                         시간이 머무는<br>
                         <span class="gold-foil">따뜻한 서재</span>
                     </h1>
-                    <p class="font-serif text-lg sm:text-xl text-paper/75 mt-5">우리의 이야기가 한 권의 책이 되는 곳</p>
+                    <p class="font-serif text-lg sm:text-xl text-paper/75 mt-5">나의 빛나는 인생 찬란한 기록</p>
                     <p class="text-[15px] sm:text-base text-paper/60 leading-relaxed max-w-xl mt-6">
-                        각자의 자리에서 묵묵히 한 시대를 일구어 온 열 분의 삶과 지혜,
+                        각자의 자리에서 묵묵히 한 시대를 일구어 온 당신의 삶과 지혜,
                         그리고 사랑하는 이들에게 남기는 목소리를 한자리에 모은 디지털 유산 공간입니다.
                     </p>
                     <div class="flex flex-wrap gap-3 mt-9">
                         <button onclick="scrollToId('bookshelfSection')" class="group px-7 py-4 rounded-full bg-gold text-night font-bold hover:bg-goldLight transition-all shadow-[0_10px_30px_-8px_rgba(201,164,92,.7)] flex items-center gap-2">
                             <i data-lucide="library" class="w-5 h-5"></i>
-                            <span>10인의 서재 둘러보기</span>
+                            <span>당신의 아카이브 둘러보기</span>
                             <i data-lucide="arrow-down" class="w-4 h-4 group-hover:translate-y-0.5 transition-transform"></i>
-                        </button>
-                        <button onclick="scrollToId('guestbookSection')" class="px-7 py-4 rounded-full border border-paper/25 text-paper font-medium hover:bg-paper/10 hover:border-paper/50 transition-colors flex items-center gap-2">
-                            <i data-lucide="feather" class="w-5 h-5"></i>
-                            <span>방명록 남기기</span>
                         </button>
                     </div>
 
@@ -373,12 +369,12 @@
             </div>
         </section>
 
-        <!-- 10인의 서재 -->
+        <!-- 당신의 아카이브 -->
         <section id="bookshelfSection" class="paper-tex scroll-mt-20">
             <div class="max-w-7xl mx-auto py-20 sm:py-28 px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-2xl mx-auto mb-16 reveal">
                     <span class="eyebrow text-terracotta">The 10 Bookshelves</span>
-                    <h2 class="font-serif text-3xl sm:text-[2.6rem] font-bold text-ink mt-4 leading-tight">열 분의 개인 서재로<br class="sm:hidden"> 초대합니다</h2>
+                    <h2 class="font-serif text-3xl sm:text-[2.6rem] font-bold text-ink mt-4 leading-tight">당신의 개인 서재로<br class="sm:hidden"> 초대합니다</h2>
                     <div class="flex items-center justify-center gap-3 mt-6"><span class="rule-gold w-16"></span><span class="diamond"></span><span class="rule-gold w-16"></span></div>
                     <p class="text-muted mt-6">책 한 권이 한 분의 인생입니다. 표지를 누르시면 자서전과 사진, 영상, 목소리가 담긴 서재가 열립니다.</p>
                 </div>
@@ -395,7 +391,7 @@
                     한 사람의 인생은<br><span class="gold-foil">한 권의 위대한 책</span>과 같습니다.
                 </blockquote>
                 <p class="text-paper/60 leading-relaxed max-w-2xl mx-auto mt-8 reveal">
-                    2026년, 오랜 세월 우정과 신뢰로 함께 걸어온 열 분의 삶이 잊히지 않도록 자서전, 리마인드 사진, 삶의 동영상,
+                    2026년, 오랜 세월 우정과 신뢰로 함께 걸어온 당신의 삶이 잊히지 않도록 자서전, 리마인드 사진, 삶의 동영상,
                     그리고 다정한 육성을 한곳에 엮어 '황재복 라이브러리'를 개관하였습니다.
                     가족과 후손, 지인들이 언제든 찾아와 삶의 지혜를 나누는 따뜻한 디지털 쉼터가 되기를 바랍니다.
                 </p>
@@ -415,46 +411,6 @@
                     <div class="reveal rounded-2xl border border-gold/20 bg-white/[.03] p-5" style="transition-delay:.24s">
                         <i data-lucide="disc-3" class="w-7 h-7 text-goldLight"></i>
                         <p class="font-serif font-bold text-lg mt-4">목소리 기록</p><p class="text-sm text-paper/55 mt-1">큰 글씨 자막과 함께 듣는 육성 레코드</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 방명록 -->
-        <section id="guestbookSection" class="paper-tex scroll-mt-20">
-            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-                <div class="text-center mb-14 reveal">
-                    <span class="eyebrow text-terracotta">Shared Guestbook</span>
-                    <h2 class="font-serif text-3xl sm:text-[2.6rem] font-bold text-ink mt-4">함께 남기는 방명록</h2>
-                    <div class="flex items-center justify-center gap-3 mt-6"><span class="rule-gold w-16"></span><span class="diamond"></span><span class="rule-gold w-16"></span></div>
-                    <p class="text-muted mt-6">열 분의 주인공과 가족들에게 따뜻한 응원과 감사의 인사를 남겨주세요.</p>
-                </div>
-
-                <div class="grid lg:grid-cols-5 gap-8 items-start">
-                    <form onsubmit="addGuestbookEntry(event)" class="card lg:col-span-2 p-6 sm:p-8 lg:sticky lg:top-28 reveal">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-11 h-11 rounded-full bg-ink text-goldLight grid place-items-center"><i data-lucide="pen-line" class="w-5 h-5"></i></div>
-                            <div><p class="font-serif font-bold text-lg text-ink">편지 쓰기</p><p class="text-xs text-muted">남겨주신 글은 이 기기에 보관됩니다</p></div>
-                        </div>
-                        <label for="guestName" class="block text-sm font-bold text-ink mb-1.5">남기시는 분 성함</label>
-                        <input type="text" id="guestName" required maxlength="30" placeholder="예: 김민수 (아들)" class="field mb-4">
-                        <label for="guestTarget" class="block text-sm font-bold text-ink mb-1.5">전하는 대상</label>
-                        <select id="guestTarget" class="field mb-4">
-                            <option value="열 분 모두">황재복 라이브러리 열 분 모두에게</option>
-                        </select>
-                        <label for="guestMessage" class="block text-sm font-bold text-ink mb-1.5">따뜻한 메시지</label>
-                        <textarea id="guestMessage" rows="4" required maxlength="400" placeholder="어르신들의 빛나는 삶의 기록을 보며 큰 감동을 받았습니다. 늘 건강하세요!" class="field resize-none"></textarea>
-                        <button type="submit" class="mt-6 w-full px-6 py-4 rounded-full bg-ink hover:bg-terracottaDark text-paper font-bold transition-colors flex items-center justify-center gap-2">
-                            <i data-lucide="send" class="w-4 h-4"></i>
-                            <span>방명록 등록하기</span>
-                        </button>
-                    </form>
-
-                    <div class="lg:col-span-3">
-                        <div class="flex items-center justify-between mb-5">
-                            <p class="font-serif font-bold text-ink">도착한 편지 <span id="guestCount" class="text-terracotta ml-1">0</span>통</p>
-                        </div>
-                        <div id="guestbookList" class="grid sm:grid-cols-2 gap-5"></div>
                     </div>
                 </div>
             </div>
@@ -756,10 +712,10 @@
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
             <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full border border-gold/50 grid place-items-center text-goldLight font-serif font-black text-xl">黃</div>
+                    <div class="w-12 h-12 rounded-full border border-gold/50 grid place-items-center text-goldLight font-serif font-black text-xl">福</div>
                     <div>
                         <p class="font-serif font-bold text-lg text-paper">황재복 라이브러리 <span class="text-paper/40 font-normal text-sm ml-1">Hwang Jae-bok Library</span></p>
-                        <p class="text-sm text-paper/50 mt-1">열 분의 소중한 삶과 기억을 영원히 보존하는 디지털 유산 아카이브</p>
+                        <p class="text-sm text-paper/50 mt-1">당신의 소중한 삶과 기억을 영원히 보존하는 디지털 유산 아카이브</p>
                     </div>
                 </div>
                 <div class="text-xs text-paper/40">© 2026 황재복 라이브러리 추진위원회. All rights reserved.</div>
@@ -1343,7 +1299,6 @@
         function populateSelects() {
             const opts = libraryMembers.map(m => `<option value="${m.id}">${m.vol} · ${m.name} 님의 서재</option>`).join('');
             $('quickSwitcher').insertAdjacentHTML('beforeend', opts);
-            $('guestTarget').insertAdjacentHTML('beforeend', libraryMembers.map(m => `<option value="${m.name}">${m.vol} · ${m.name} 님께</option>`).join(''));
         }
         function handleQuickSwitch(v) { v === 'lobby' ? navigateToLobby() : openStudy(+v); }
 
@@ -1685,44 +1640,6 @@
 
         function stopMedia() { if (vid.playing) pauseVideo(); if (aud.playing) pauseAudio(); }
 
-        /* ═════════════════ 방명록 ═════════════════ */
-        const GB_KEY = 'hjb-guestbook-v2';
-        const SAMPLE_GB = [
-            { name: '김지현 (신부)', target: '황재복', msg: '선생님의 드레스를 입고 걸어 들어가던 그날이 아직도 생생합니다. 삶의 이야기를 읽으니 그 드레스가 더욱 특별하게 느껴져요. 감사합니다.', date: '2026.10.24' },
-            { name: '박지은 (제자)', target: '열 분 모두', msg: '선생님들의 삶이 곧 우리 시대의 역사입니다. 귀한 기록을 남겨 주셔서 진심으로 감사드립니다.', date: '2026.10.21' },
-            { name: '이서연 (손녀)', target: '이영희', msg: '할머니가 가르쳐 주신 첫 바느질, 평생 잊지 않을게요. 할머니 목소리를 언제든 들을 수 있어서 행복해요!', date: '2026.10.18' },
-            { name: '박민준 (손자)', target: '박민수', msg: '할아버지의 바다 이야기를 들으니 저도 넓은 세상을 항해하고 싶어졌어요. 순풍을 빌어 주세요!', date: '2026.10.15' }
-        ];
-        let guestbook = store.get(GB_KEY, null) || SAMPLE_GB.slice();
-        function renderGuestbook() {
-            $('guestCount').textContent = guestbook.length;
-            $('guestbookList').innerHTML = guestbook.map((g, i) => {
-                const m = libraryMembers.find(x => x.name === g.target);
-                const c = m ? m.spineColor : '#B8743F';
-                return `
-                <article class="letter p-6 reveal" style="transition-delay:${Math.min(i, 5) * 60}ms">
-                    <div class="flex items-center justify-between gap-3">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white" style="background:${c}">${ic('mail', 'w-3.5 h-3.5')} ${esc(g.target)}${m ? ' 님께' : '에게'}</span>
-                        <time class="text-xs text-muted font-mono">${esc(g.date)}</time>
-                    </div>
-                    <p class="font-serif text-ink leading-8 mt-4">${esc(g.msg)}</p>
-                    <p class="font-hand text-2xl text-ink/80 text-right mt-3">— ${esc(g.name)}</p>
-                </article>`;
-            }).join('');
-            refreshIcons(); observeReveals();
-        }
-        function addGuestbookEntry(e) {
-            e.preventDefault();
-            const name = $('guestName').value.trim(), msg = $('guestMessage').value.trim();
-            if (!name || !msg) return;
-            const d = new Date();
-            guestbook.unshift({ name, target: $('guestTarget').value, msg, date: `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}` });
-            store.set(GB_KEY, guestbook);
-            e.target.reset();
-            renderGuestbook();
-            toast('따뜻한 편지가 서재에 도착했습니다');
-        }
-
         /* ═════════════════ 글씨 크기 ═════════════════ */
         function applyFontSize(on) {
             document.documentElement.classList.toggle('large-text', on);
@@ -1740,7 +1657,6 @@
         renderHeroShelf();
         renderMembersGrid();
         populateSelects();
-        renderGuestbook();
         setVideoBtn(); setAudioBtn();
         refreshIcons();
         observeReveals();
