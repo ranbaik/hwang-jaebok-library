@@ -524,6 +524,22 @@
                 </div>
 
                 <div class="card p-6 sm:p-10">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                        <div>
+                            <span class="section-label eyebrow">Original Manuscript</span>
+                            <h3 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-3">자서전 원본</h3>
+                            <p class="text-muted mt-2 text-[15px]">원고 PDF, 손글씨 원고 사진, 한글·워드 파일 등 자서전 원본을 이곳에 보관합니다.</p>
+                        </div>
+                        <label class="self-start sm:self-auto shrink-0 cursor-pointer px-6 py-3.5 rounded-full bg-ink hover:bg-terracottaDark text-paper font-bold transition-colors flex items-center gap-2">
+                            <i data-lucide="upload" class="w-5 h-5"></i><span>원본 파일 올리기</span>
+                            <input type="file" id="origInput" class="sr-only" multiple accept=".pdf,.txt,.hwp,.hwpx,.doc,.docx,image/*" onchange="addOriginals(this.files); this.value=''">
+                        </label>
+                    </div>
+                    <div id="origList" class="grid sm:grid-cols-2 gap-4 mt-8"></div>
+                    <p class="text-xs text-muted mt-5 flex items-start gap-1.5"><i data-lucide="info" class="w-4 h-4 shrink-0"></i><span>여기서 올린 파일은 지금 사용 중인 기기(브라우저)에만 저장됩니다. 모든 방문객이 보도록 공개하려면 원본 파일을 사이트 관리자에게 보내 서재에 정식으로 등록해 주세요.</span></p>
+                </div>
+
+                <div class="card p-6 sm:p-10">
                     <span class="section-label eyebrow">Life Timeline</span>
                     <h3 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-3 mb-10">걸어온 발자취</h3>
                     <div id="timelineContainer" class="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6"></div>
@@ -702,6 +718,24 @@
         </div>
     </div>
 
+    <!-- 자서전 원본 보기 -->
+    <div id="origModal" class="fixed inset-0 z-50 hidden bg-night/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6" onclick="closeOriginal()">
+        <div class="bg-cream rounded-[1.5rem] w-full max-w-4xl h-[88vh] flex flex-col overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-ink/10">
+                <div class="min-w-0">
+                    <span class="eyebrow text-member">Original</span>
+                    <h3 id="origTitle" class="font-serif text-lg sm:text-xl font-bold text-ink truncate"></h3>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a id="origOpen" target="_blank" rel="noopener" class="hidden sm:flex px-4 py-2.5 rounded-full border border-ink/15 text-ink text-sm font-bold hover:bg-ink hover:text-paper transition-colors items-center gap-1.5"><i data-lucide="external-link" class="w-4 h-4"></i>새 창</a>
+                    <a id="origDownload" class="px-4 py-2.5 rounded-full bg-ink text-paper text-sm font-bold hover:bg-terracottaDark transition-colors flex items-center gap-1.5"><i data-lucide="download" class="w-4 h-4"></i>내려받기</a>
+                    <button onclick="closeOriginal()" class="w-10 h-10 rounded-full hover:bg-ink/10 grid place-items-center text-ink" aria-label="닫기"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+            <div id="origBody" class="flex-1 min-h-0 bg-[#2a2420] overflow-auto"></div>
+        </div>
+    </div>
+
     <!-- 토스트 -->
     <div id="toast" class="toast fixed bottom-6 left-1/2 z-[60] px-5 py-3.5 rounded-full bg-ink text-paper text-sm font-medium shadow-2xl flex items-center gap-2">
         <i data-lucide="check-circle-2" class="w-5 h-5 text-goldLight"></i><span id="toastText">등록되었습니다</span>
@@ -714,7 +748,7 @@
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full border border-gold/50 grid place-items-center text-goldLight font-serif font-black text-xl">福</div>
                     <div>
-                        <p class="font-serif font-bold text-lg text-paper">황재복 라이브러리 <span class="text-paper/40 font-normal text-sm ml-1">Hwang Jae-bok Library</span></p>
+                        <p class="font-serif font-bold text-lg text-paper">황재복 라이브러리 <span class="text-paper/40 font-normal text-sm ml-1">Hwang Jae-bock Library</span></p>
                         <p class="text-sm text-paper/50 mt-1">당신의 소중한 삶과 기억을 영원히 보존하는 디지털 유산 아카이브</p>
                     </div>
                 </div>
@@ -1375,6 +1409,7 @@
 
             ebookPage = 0; renderEbook(false);
             renderTimeline();
+            renderOriginals();
             renderPhotos();
             renderCompare();
             renderVideoChapters(); selectVideoChapter(0);
@@ -1431,7 +1466,131 @@
             if (e.key === 'ArrowLeft') prevEbookPage();
             if (e.key === 'ArrowRight') nextEbookPage();
         });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closePhotoModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePhotoModal(); closeOriginal(); } });
+
+        /* ── 자서전 원본 ── */
+        // 모든 방문객에게 공개할 원본은 각 인물 데이터에 originals: [{ title, file: 'originals/파일명.pdf', note }] 로 등록합니다.
+        const ORIG_DB = 'hjb-originals', ORIG_STORE = 'files';
+        let origDbP = null, origUrls = [], origCurrent = [];
+        function origDb() {
+            if (!origDbP) origDbP = new Promise((res, rej) => {
+                try {
+                    const r = indexedDB.open(ORIG_DB, 1);
+                    r.onupgradeneeded = () => { const os = r.result.createObjectStore(ORIG_STORE, { keyPath: 'id', autoIncrement: true }); os.createIndex('member', 'member'); };
+                    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+                } catch (e) { rej(e); }
+            });
+            return origDbP;
+        }
+        async function origTx(mode, fn) {
+            const db = await origDb();
+            return new Promise((res, rej) => { const t = db.transaction(ORIG_STORE, mode); const out = fn(t.objectStore(ORIG_STORE)); t.oncomplete = () => res(out && out.result); t.onerror = () => rej(t.error); });
+        }
+        const origKind = name => { const x = (name.split('.').pop() || '').toLowerCase(); return x === 'pdf' ? 'pdf' : /^(jpe?g|png|gif|webp|bmp|avif)$/.test(x) ? 'image' : x === 'txt' ? 'text' : 'file'; };
+        const ORIG_ICON = { pdf: 'file-text', image: 'image', text: 'file-type', file: 'file' };
+        const fmtSize = b => b > 1048576 ? (b / 1048576).toFixed(1) + 'MB' : Math.max(1, Math.round(b / 1024)) + 'KB';
+
+        async function renderOriginals() {
+            const m = cur; if (!m) return;
+            origUrls.forEach(u => URL.revokeObjectURL(u)); origUrls = [];
+            let local = [];
+            try { local = await origTx('readonly', os => os.index('member').getAll(m.id)) || []; } catch (e) { }
+            if (cur !== m) return;
+            const items = [
+                ...(m.originals || []).map(o => ({ title: o.title, url: o.file, name: o.file.split('/').pop(), kind: origKind(o.file), note: o.note || '서재 소장 원본', shared: true })),
+                ...local.map(o => { const url = URL.createObjectURL(o.blob); origUrls.push(url); return { id: o.id, title: o.name.replace(/\.[^.]+$/, ''), url, name: o.name, kind: origKind(o.name), note: `${fmtSize(o.size)} · ${o.date} 올림`, shared: false }; })
+            ];
+            origCurrent = items;
+            $('origList').innerHTML = items.length ? items.map((o, i) => `
+                <div class="flex items-center gap-4 rounded-2xl border border-ink/10 bg-white/60 p-4 hover:border-member transition-colors">
+                    <button onclick="openOriginal(${i})" class="flex items-center gap-4 min-w-0 flex-1 text-left">
+                        <span class="w-14 h-16 shrink-0 rounded-lg grid place-items-center text-paper shadow-md" style="background:linear-gradient(150deg,var(--member),var(--member-dark))">${ic(ORIG_ICON[o.kind], 'w-6 h-6')}</span>
+                        <span class="min-w-0">
+                            <span class="block font-serif font-bold text-ink truncate">${esc(o.title)}</span>
+                            <span class="block text-xs text-muted mt-1 truncate">${esc(o.note)}</span>
+                            <span class="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full text-[11px] font-bold ${o.shared ? 'text-member' : 'bg-ink/10 text-ink/70'}" ${o.shared ? 'style="background:color-mix(in srgb,var(--member) 15%,transparent)"' : ''}>${ic(o.shared ? 'globe' : 'smartphone', 'w-3 h-3')}${o.shared ? '모두에게 공개' : '이 기기에만 저장'}</span>
+                        </span>
+                    </button>
+                    ${o.shared ? '' : `<button onclick="deleteOriginal(${o.id})" class="w-10 h-10 shrink-0 rounded-full text-muted hover:bg-terracotta hover:text-paper grid place-items-center transition-colors" aria-label="${esc(o.name)} 삭제">${ic('trash-2', 'w-4 h-4')}</button>`}
+                </div>`).join('') : `
+                <div class="sm:col-span-2 rounded-2xl border-2 border-dashed border-ink/15 p-10 text-center">
+                    ${ic('book-up', 'w-10 h-10 mx-auto text-member')}
+                    <p class="font-serif font-bold text-ink text-lg mt-4">아직 등록된 원본이 없습니다</p>
+                    <p class="text-sm text-muted mt-1">'원본 파일 올리기'를 눌러 PDF나 원고 사진을 넣어 보세요.</p>
+                </div>`;
+            refreshIcons();
+        }
+        async function addOriginals(files) {
+            if (!cur || !files || !files.length) return;
+            const d = new Date(), date = `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}`;
+            let n = 0;
+            for (const f of Array.from(files)) {
+                if (f.size > 100 * 1048576) { toast(`${f.name}: 100MB 이하 파일만 올릴 수 있습니다`); continue; }
+                try { await origTx('readwrite', os => os.add({ member: cur.id, name: f.name, type: f.type, size: f.size, date, blob: f })); n++; }
+                catch (e) { toast('이 브라우저에서는 파일을 저장할 수 없습니다'); return; }
+            }
+            if (n) { await renderOriginals(); toast(`자서전 원본 ${n}개를 서재에 보관했습니다`); }
+        }
+        async function deleteOriginal(id) {
+            if (!confirm('이 원본 파일을 이 기기에서 삭제할까요?')) return;
+            try { await origTx('readwrite', os => os.delete(id)); } catch (e) { }
+            await renderOriginals(); toast('원본 파일을 삭제했습니다');
+        }
+        function openOriginal(i) {
+            const o = origCurrent[i]; if (!o) return;
+            stopMedia();
+            $('origTitle').textContent = o.title;
+            $('origOpen').href = o.url;
+            $('origDownload').href = o.url; $('origDownload').setAttribute('download', o.name);
+            const body = $('origBody');
+            if (o.kind === 'pdf') renderPdf(o, body);
+            else if (o.kind === 'image') body.innerHTML = `<div class="min-h-full grid place-items-center p-4"><img src="${o.url}" alt="${esc(o.title)}" class="max-w-full h-auto shadow-2xl"></div>`;
+            else if (o.kind === 'text') { body.innerHTML = `<div class="bg-paper min-h-full p-6 sm:p-12"><p id="origText" class="font-serif text-[17px] text-ink leading-[2] whitespace-pre-wrap max-w-2xl mx-auto">불러오는 중…</p></div>`; fetch(o.url).then(r => r.text()).then(t => { const el = $('origText'); if (el) el.textContent = t; }).catch(() => { }); }
+            else body.innerHTML = `<div class="h-full grid place-items-center p-8 text-center text-paper"><div>${ic('file', 'w-12 h-12 mx-auto text-goldLight')}<p class="font-serif text-xl font-bold mt-4">${esc(o.name)}</p><p class="text-paper/60 mt-2 text-sm">이 형식은 화면에서 바로 볼 수 없어요. '내려받기'로 열어 주세요.</p></div></div>`;
+            $('origModal').classList.remove('hidden'); document.body.style.overflow = 'hidden';
+            refreshIcons();
+        }
+        const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+        let pdfLibP = null, pdfToken = 0;
+        function loadPdfLib() {
+            if (!pdfLibP) pdfLibP = new Promise((res, rej) => {
+                const sc = document.createElement('script'); sc.src = PDFJS + 'pdf.min.js';
+                sc.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; res(pdfjsLib); };
+                sc.onerror = () => { pdfLibP = null; rej(new Error('pdf.js')); };
+                document.head.appendChild(sc);
+            });
+            return pdfLibP;
+        }
+        async function renderPdf(o, body) {
+            const token = ++pdfToken;
+            body.innerHTML = `<div class="h-full grid place-items-center text-paper/70 text-sm">원본을 펼치는 중…</div>`;
+            try {
+                const lib = await loadPdfLib();
+                const doc = await lib.getDocument(o.url).promise;
+                if (token !== pdfToken) return;
+                body.innerHTML = `<div id="pdfPages" class="flex flex-col items-center gap-4 p-3 sm:p-6"></div>`;
+                const wrap = $('pdfPages'), dpr = Math.min(window.devicePixelRatio || 1, 2);
+                for (let n = 1; n <= doc.numPages; n++) {
+                    if (token !== pdfToken) return;
+                    const page = await doc.getPage(n);
+                    const w = Math.min(wrap.clientWidth || 800, 820);
+                    const vp = page.getViewport({ scale: w / page.getViewport({ scale: 1 }).width * dpr });
+                    const c = document.createElement('canvas');
+                    c.width = vp.width; c.height = vp.height; c.style.width = (vp.width / dpr) + 'px';
+                    c.className = 'bg-white shadow-2xl max-w-full h-auto';
+                    c.setAttribute('aria-label', `${o.title} ${n}쪽`);
+                    wrap.appendChild(c);
+                    await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+                }
+            } catch (e) {
+                if (token === pdfToken) body.innerHTML = `<div class="h-full grid place-items-center p-8 text-center text-paper"><div>${ic('file-text', 'w-12 h-12 mx-auto text-goldLight')}<p class="font-serif text-xl font-bold mt-4">${esc(o.name)}</p><p class="text-paper/60 mt-2 text-sm">화면에서 펼치지 못했어요. '내려받기'로 열어 주세요.</p></div></div>`, refreshIcons();
+            }
+        }
+        function closeOriginal() {
+            pdfToken++;
+            if ($('origModal').classList.contains('hidden')) return;
+            $('origModal').classList.add('hidden'); $('origBody').innerHTML = ''; document.body.style.overflow = '';
+        }
 
         /* ── 연대기 ── */
         function renderTimeline() {
