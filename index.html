@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>황재복 라이브러리 | 시간이 머무는 따뜻한 서재</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;600;700;900&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        night: '#15100C',
+                        walnut: '#2A1F17',
+                        walnutLight: '#4A3626',
+                        paper: '#F6F0E4',
+                        paperDark: '#ECE3D1',
+                        cream: '#FFFCF5',
+                        gold: '#C9A45C',
+                        goldLight: '#E9CF95',
+                        terracotta: '#B8743F',
+                        terracottaDark: '#94592B',
+                        ink: '#231B15',
+                        muted: '#6E6052'
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif KR"', 'serif'],
+                        sans: ['"Noto Sans KR"', 'sans-serif'],
+                        hand: ['"Nanum Pen Script"', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root { --member: #8B4513; --member-light: #C98A5B; --member-dark: #4A250B; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        html.large-text { font-size: 19px; }
+        body {
+            background: #F6F0E4;
+            color: #231B15;
+            font-family: 'Noto Sans KR', sans-serif;
+            word-break: keep-all;
+            transition: font-size .2s ease;
+        }
+        option { color: #231B15; background: #FFFCF5; }
+
+        /* ── 질감 ─────────────────────────────── */
+        .grain::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: .09; mix-blend-mode: overlay;
+        }
+        .paper-tex {
+            background-color: #F6F0E4;
+            background-image:
+                radial-gradient(1200px 500px at 10% -10%, rgba(201,164,92,.10), transparent 60%),
+                radial-gradient(900px 500px at 110% 10%, rgba(184,116,63,.08), transparent 60%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .35 0 0 0 0 .25 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+        }
+
+        /* ── 금박 타이포 ──────────────────────── */
+        .gold-foil {
+            background: linear-gradient(100deg, #A8792F 0%, #F5E0A8 28%, #C9A45C 48%, #8C6526 68%, #EAD093 86%, #B88A3C 100%);
+            background-size: 220% auto;
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: foil 9s linear infinite;
+        }
+        @keyframes foil { to { background-position: 220% center; } }
+        .eyebrow { letter-spacing: .32em; font-size: .7rem; font-weight: 700; text-transform: uppercase; }
+        .rule-gold { height: 1px; background: linear-gradient(90deg, transparent, #C9A45C 30%, #C9A45C 70%, transparent); }
+        .diamond { width: 7px; height: 7px; transform: rotate(45deg); background: #C9A45C; display: inline-block; }
+
+        /* ── 히어로 램프 불빛 ─────────────────── */
+        .lamp-glow {
+            position: absolute; width: 1100px; height: 1100px; left: 62%; top: -520px; transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(236,186,110,.30) 0%, rgba(236,186,110,.10) 35%, transparent 62%);
+            animation: flicker 7s ease-in-out infinite; pointer-events: none;
+        }
+        @keyframes flicker { 0%,100% { opacity: 1; } 45% { opacity: .86; } 50% { opacity: .95; } 70% { opacity: .9; } }
+        .dust { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(245,224,168,.7); filter: blur(.5px); animation: dust 14s linear infinite; pointer-events: none; }
+        @keyframes dust { 0% { transform: translate(0,0); opacity: 0; } 15% { opacity: .9; } 100% { transform: translate(-60px,-220px); opacity: 0; } }
+
+        /* ── 히어로 책장 ──────────────────────── */
+        .spine {
+            position: relative; flex: 1 1 0; max-width: 56px; min-width: 0;
+            border-radius: 3px 3px 1px 1px;
+            background:
+                linear-gradient(90deg, rgba(0,0,0,.45) 0%, rgba(255,255,255,.16) 14%, rgba(255,255,255,.03) 34%, rgba(0,0,0,.10) 70%, rgba(0,0,0,.42) 100%),
+                var(--c);
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,.3), 3px 0 6px rgba(0,0,0,.35);
+            transition: transform .45s cubic-bezier(.2,.8,.2,1), filter .3s;
+            transform-origin: bottom center; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+        }
+        .spine:hover, .spine:focus-visible { transform: translateY(-18px); filter: brightness(1.15); outline: none; }
+        .spine:focus-visible { box-shadow: 0 0 0 2px #E9CF95; }
+        .spine .band { position: absolute; left: 5px; right: 5px; height: 2px; background: #C9A45C; opacity: .9; box-shadow: 0 5px 0 0 rgba(201,164,92,.55); }
+        .spine .spine-no { margin-top: 30px; font-family: 'Noto Serif KR', serif; font-size: .62rem; color: rgba(233,207,149,.85); letter-spacing: .05em; }
+        .spine .spine-title { writing-mode: vertical-rl; margin-top: 14px; font-family: 'Noto Serif KR', serif; color: #F3DDA2; letter-spacing: .35em; font-weight: 700; font-size: .9rem; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
+        .spine.lean { transform: rotate(-7deg) translateX(6px); }
+        .spine.lean:hover { transform: rotate(-7deg) translate(6px,-18px); }
+        .shelf-plank {
+            height: 22px; border-radius: 3px;
+            background: linear-gradient(180deg, #6A4C36 0%, #47331F 45%, #2A1D12 100%);
+            box-shadow: 0 26px 40px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.18);
+        }
+        .bookend { width: 14px; border-radius: 2px 2px 0 0; background: linear-gradient(90deg,#8E6A2E,#E9CF95 45%,#8E6A2E); box-shadow: 2px 0 6px rgba(0,0,0,.4); }
+
+        /* ── 책 표지 카드 ─────────────────────── */
+        .book { position: relative; aspect-ratio: 3 / 4.2; perspective: 1400px; }
+        .book-inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+        .book-pages {
+            position: absolute; top: 2.5%; bottom: 2.5%; right: -9px; width: 14px; border-radius: 0 4px 4px 0;
+            background: repeating-linear-gradient(90deg, #F6F0E2 0 1px, #DDD1B8 1px 2px);
+            box-shadow: 6px 10px 18px rgba(35,27,21,.22);
+        }
+        .book-cover {
+            position: absolute; inset: 0; border-radius: 3px 9px 9px 3px; overflow: hidden; color: #F6E7C4;
+            background:
+                linear-gradient(90deg, rgba(0,0,0,.45) 0, rgba(255,255,255,.18) 3%, rgba(0,0,0,.18) 5.5%, transparent 11%),
+                radial-gradient(130% 80% at 75% 0%, rgba(255,255,255,.20), transparent 55%),
+                radial-gradient(120% 90% at 20% 110%, rgba(0,0,0,.35), transparent 60%),
+                var(--c);
+            box-shadow: 0 26px 44px -16px rgba(35,27,21,.6), 0 8px 14px rgba(35,27,21,.18);
+        }
+        .book-cover::after {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.22) 45%, transparent 60%);
+            transform: translateX(-120%); transition: transform .9s ease;
+        }
+        .book-card:hover .book-inner, .book-card:focus-visible .book-inner { transform: rotateY(-16deg) rotateX(2deg) translateY(-8px); }
+        .book-card:hover .book-cover::after { transform: translateX(120%); }
+        .book-card:focus-visible { outline: none; }
+        .book-card:focus-visible .book-cover { box-shadow: 0 0 0 3px #C9A45C, 0 26px 44px -16px rgba(35,27,21,.6); }
+        .cover-frame { position: absolute; inset: 12px 11px 12px 20px; border: 1px solid rgba(233,207,149,.55); border-radius: 2px; pointer-events: none; }
+        .cover-frame::after { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(233,207,149,.22); }
+        .monogram {
+            width: 62px; height: 62px; border-radius: 50%; display: grid; place-items: center;
+            font-family: 'Noto Serif KR', serif; font-weight: 900; font-size: 1.7rem; color: #F3DDA2;
+            border: 1px solid rgba(233,207,149,.7); box-shadow: inset 0 0 0 4px rgba(0,0,0,.12), inset 0 0 0 5px rgba(233,207,149,.3);
+            background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.18), rgba(0,0,0,.15));
+        }
+
+        /* ── 등장 애니메이션 ──────────────────── */
+        .reveal { opacity: 0; transform: translateY(26px); transition: opacity .9s ease, transform .9s cubic-bezier(.2,.8,.2,1); }
+        .reveal.in { opacity: 1; transform: none; }
+
+        /* ── 개인 서재 공통 ───────────────────── */
+        .text-member { color: var(--member); }
+        .bg-member { background-color: var(--member); }
+        .card {
+            background: #FFFCF5; border: 1px solid #E6DAC3; border-radius: 1.75rem;
+            box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 24px 50px -30px rgba(35,27,21,.35);
+        }
+        .section-label { display: inline-flex; align-items: center; gap: .6rem; color: var(--member); }
+        .section-label::before { content: ''; width: 22px; height: 1px; background: currentColor; }
+
+        .study-tab { color: #6E6052; transition: all .25s ease; }
+        .study-tab:hover { color: #231B15; background: rgba(35,27,21,.05); }
+        .study-tab.active { background: #231B15; color: #F6F0E4; box-shadow: 0 10px 20px -10px rgba(35,27,21,.6); }
+        .study-tab.active svg { color: #E9CF95; }
+
+        /* ── E-Book ───────────────────────────── */
+        .spread {
+            position: relative;
+            background: linear-gradient(90deg, #EADFC8 0%, #FAF4E6 5%, #FFFCF4 42%, #E8DCC3 48.6%, #BFAE8C 50%, #E8DCC3 51.4%, #FFFCF4 58%, #FAF4E6 95%, #EADFC8 100%);
+            box-shadow: 0 34px 60px -24px rgba(35,27,21,.5), 0 0 0 1px #D8CAAE;
+        }
+        .spread::before, .spread::after {
+            content: ''; position: absolute; left: 1%; right: 1%; height: 6px; border-radius: 0 0 6px 6px; z-index: -1;
+            background: repeating-linear-gradient(180deg, #F3EBDA 0 1px, #D6C8AA 1px 2px);
+        }
+        .spread::before { bottom: -5px; }
+        .spread::after { bottom: -10px; left: 2%; right: 2%; opacity: .7; }
+        @media (max-width: 767px) { .spread { background: linear-gradient(180deg, #FFFCF4, #F7F0E1); } }
+        .drop-cap::first-letter {
+            font-family: 'Noto Serif KR', serif; float: left; font-size: 3.3em; line-height: .95; font-weight: 900;
+            padding: .04em .14em 0 0; color: var(--member);
+        }
+        .page-flip-anim { animation: pageTurn .55s cubic-bezier(.2,.8,.2,1); transform-origin: left center; }
+        @keyframes pageTurn {
+            0% { opacity: .2; transform: perspective(1600px) rotateY(-10deg) translateX(14px); filter: brightness(.92); }
+            100% { opacity: 1; transform: none; filter: none; }
+        }
+        .page-dot { width: 9px; height: 9px; border-radius: 99px; background: #D9CCB2; transition: all .3s; }
+        .page-dot.on { width: 28px; background: var(--member); }
+
+        /* ── 비교 슬라이더 ───────────────────── */
+        .compare-container { position: relative; overflow: hidden; user-select: none; touch-action: pan-y; cursor: ew-resize; }
+        .compare-overlay { position: absolute; top: 0; left: 0; height: 100%; overflow: hidden; }
+        .compare-handle { position: absolute; top: 0; bottom: 0; width: 2px; background: #FFFCF5; box-shadow: 0 0 18px rgba(0,0,0,.55); z-index: 20; transform: translateX(-1px); }
+        .compare-handle:focus-visible { outline: none; }
+        .compare-handle:focus-visible .knob { box-shadow: 0 0 0 4px rgba(233,207,149,.8); }
+        .sepia-scene { background: radial-gradient(120% 90% at 50% 30%, #7A6650 0%, #4A3D30 55%, #241D16 100%); filter: sepia(.4) contrast(1.05); }
+        .golden-scene { background: radial-gradient(120% 90% at 50% 25%, #FFF1D6 0%, #F1CFA0 45%, #D59A62 100%); }
+
+        /* ── 폴라로이드 ───────────────────────── */
+        .polaroid {
+            position: relative; background: #FFFDF8; padding: 12px 12px 18px; border-radius: 3px;
+            box-shadow: 0 18px 32px -14px rgba(35,27,21,.45), 0 2px 4px rgba(35,27,21,.08);
+            transform: rotate(var(--r)); transition: transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s;
+        }
+        .polaroid:hover, .polaroid:focus-visible { transform: rotate(0) translateY(-10px) scale(1.02); box-shadow: 0 30px 46px -18px rgba(35,27,21,.5); outline: none; }
+        .tape { position: absolute; top: -11px; left: 50%; width: 92px; height: 24px; transform: translateX(-50%) rotate(-3deg); background: rgba(232,218,186,.82); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+        .photo-visual { aspect-ratio: 4 / 3.4; display: grid; place-items: center; position: relative; overflow: hidden; }
+        .photo-visual::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 60px rgba(0,0,0,.35); }
+
+        /* ── 시네마 ───────────────────────────── */
+        .screen { background: #0A0706; }
+        .film-grain { position: absolute; inset: -50%; pointer-events: none; opacity: .14;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+        }
+        .playing .film-grain { animation: grainMove .5s steps(5) infinite; }
+        @keyframes grainMove { 0% { transform: translate(0,0); } 20% { transform: translate(-4%,3%); } 40% { transform: translate(3%,-5%); } 60% { transform: translate(-6%,-2%); } 80% { transform: translate(5%,4%); } 100% { transform: translate(0,0); } }
+        .vignette { position: absolute; inset: 0; box-shadow: inset 0 0 140px 30px rgba(0,0,0,.9); pointer-events: none; }
+        .projector { position: absolute; inset: 0; background: radial-gradient(70% 90% at 50% 0%, color-mix(in srgb, var(--member-light) 35%, transparent), transparent 70%); transition: opacity 1s; }
+        .playing .projector { animation: projFlicker 2.4s ease-in-out infinite; }
+        @keyframes projFlicker { 0%,100% { opacity: 1; } 50% { opacity: .78; } 52% { opacity: .95; } }
+        .kenburns { transition: transform 1.2s ease; }
+        .playing .kenburns { animation: ken 18s ease-in-out infinite alternate; }
+        @keyframes ken { from { transform: scale(1); } to { transform: scale(1.12) translate(2%, -2%); } }
+        #videoIdle { transition: opacity .6s ease, transform .6s ease; }
+        .playing #videoIdle { opacity: 0; transform: scale(.96); pointer-events: none; }
+        #videoSubtitle { transition: opacity .5s ease; }
+        .clip-btn.on { border-color: var(--member); background: color-mix(in srgb, var(--member) 8%, #FFFCF5); }
+
+        /* ── 턴테이블 ─────────────────────────── */
+        .deck {
+            background: linear-gradient(160deg, #4A3626 0%, #2E2118 60%, #22180F 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -8px 20px rgba(0,0,0,.4), 0 30px 50px -20px rgba(0,0,0,.6);
+        }
+        .vinyl {
+            border-radius: 50%;
+            background: repeating-radial-gradient(circle at 50% 50%, #121212 0 1.2px, #1E1E1E 1.2px 2.6px);
+            box-shadow: 0 14px 30px rgba(0,0,0,.7), inset 0 0 0 5px #0B0B0B, inset 0 0 0 7px #262626;
+        }
+        .vinyl-sheen { border-radius: 50%; background: conic-gradient(from 20deg, transparent 0 8%, rgba(255,255,255,.14) 13%, transparent 20%, transparent 55%, rgba(255,255,255,.09) 61%, transparent 68%); pointer-events: none; }
+        .vinyl-spin { animation: spinVinyl 3.6s linear infinite; }
+        .vinyl-spin.paused { animation-play-state: paused; }
+        @keyframes spinVinyl { to { transform: rotate(360deg); } }
+        .tonearm { position: absolute; transform-origin: 50% 13px; transform: rotate(0deg); transition: transform 1s cubic-bezier(.45,1.4,.5,1); z-index: 5; }
+        .tonearm.on { transform: rotate(23deg); }
+        .eq span { display: block; width: 4px; border-radius: 2px; background: #E9CF95; height: 30%; transform-origin: bottom; transition: height .3s; }
+        .eq.on span { animation: eq 1s ease-in-out infinite; }
+        .eq.on span:nth-child(2) { animation-delay: -.3s; } .eq.on span:nth-child(3) { animation-delay: -.6s; } .eq.on span:nth-child(4) { animation-delay: -.15s; } .eq.on span:nth-child(5) { animation-delay: -.45s; }
+        @keyframes eq { 0%,100% { height: 25%; } 50% { height: 100%; } }
+        .t-line { transition: color .4s, background-color .4s; border-radius: 6px; padding: 1px 3px; }
+        .t-line.done { color: #231B15; }
+        .t-line.active { color: #231B15; background: color-mix(in srgb, var(--member) 14%, transparent); box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--member) 55%, transparent); }
+        .transcript.live .t-line:not(.done):not(.active) { color: #A2968A; }
+        .track-btn.on { background: rgba(233,207,149,.12); border-color: rgba(233,207,149,.55); }
+
+        /* ── 방명록 편지지 ───────────────────── */
+        .letter {
+            background:
+                repeating-linear-gradient(180deg, transparent 0 31px, rgba(184,116,63,.13) 31px 32px),
+                #FFFCF5;
+            border: 1px solid #E6DAC3; border-radius: 4px 18px 18px 18px;
+            box-shadow: 0 16px 30px -20px rgba(35,27,21,.4);
+        }
+        .field { width: 100%; padding: .85rem 1rem; border-radius: .9rem; background: #FAF5EA; border: 1px solid #E0D3BB; color: #231B15; transition: border-color .2s, box-shadow .2s, background .2s; }
+        .field:focus { outline: none; border-color: #C9A45C; background: #FFFCF5; box-shadow: 0 0 0 4px rgba(201,164,92,.18); }
+
+        .toast { transform: translate(-50%, 140%); transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+        .toast.show { transform: translate(-50%, 0); }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #ECE3D1; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(#C9A45C, #94592B); border-radius: 8px; border: 2px solid #ECE3D1; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+            .reveal { opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-gold selection:text-night">
+
+    <!-- ═════════ 상단 헤더 ═════════ -->
+    <header class="sticky top-0 z-40 bg-night/85 backdrop-blur-xl border-b border-gold/15 text-paper">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
+            <button onclick="navigateToLobby()" class="flex items-center gap-3 text-left group focus:outline-none">
+                <div class="relative w-11 h-11 rounded-full border border-gold/60 flex items-center justify-center text-goldLight group-hover:bg-gold group-hover:text-night transition-colors">
+                    <span class="font-serif font-black text-lg leading-none">黃</span>
+                </div>
+                <div>
+                    <span class="block font-serif font-bold text-lg sm:text-xl tracking-tight text-paper">황재복 라이브러리</span>
+                    <span class="hidden sm:block text-[11px] tracking-[.2em] text-goldLight/70">열 개의 빛나는 인생, 하나의 기록</span>
+                </div>
+            </button>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="relative hidden md:block">
+                    <select id="quickSwitcher" onchange="handleQuickSwitch(this.value)" aria-label="다른 분의 서재로 바로 가기"
+                        class="appearance-none bg-white/5 hover:bg-white/10 border border-gold/25 text-paper text-sm font-medium rounded-full pl-5 pr-10 py-2.5 focus:outline-none focus:border-gold cursor-pointer transition-colors">
+                        <option value="lobby">메인 로비 · 10인의 서재 전체</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-goldLight absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+                <button id="fontSizeBtn" onclick="toggleFontSize()"
+                    class="flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-gold text-night hover:bg-goldLight font-bold text-sm transition-colors"
+                    title="글자 크기를 크게 키웁니다">
+                    <i data-lucide="type" class="w-4 h-4"></i>
+                    <span id="fontSizeLabel">글씨 크게</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═════════ VIEW 1 : 로비 ═════════ -->
+    <main id="lobbyView" class="flex-grow">
+
+        <!-- 히어로 -->
+        <section class="grain relative overflow-hidden bg-night text-paper">
+            <div class="lamp-glow"></div>
+            <div class="dust" style="left:58%;top:70%;animation-delay:0s"></div>
+            <div class="dust" style="left:72%;top:60%;animation-delay:-4s"></div>
+            <div class="dust" style="left:66%;top:85%;animation-delay:-8s"></div>
+            <div class="dust" style="left:84%;top:75%;animation-delay:-11s"></div>
+            <div class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-night pointer-events-none"></div>
+
+            <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-16 sm:pb-24 grid lg:grid-cols-12 gap-14 items-center">
+                <div class="lg:col-span-6 reveal">
+                    <div class="flex items-center gap-3 text-goldLight/90 mb-7">
+                        <span class="diamond"></span>
+                        <span class="eyebrow">Est. 2026 · Digital Heritage Archive</span>
+                    </div>
+                    <h1 class="font-serif font-bold leading-[1.18] text-[2.5rem] sm:text-6xl lg:text-[4.1rem] tracking-tight">
+                        시간이 머무는<br>
+                        <span class="gold-foil">따뜻한 서재</span>
+                    </h1>
+                    <p class="font-serif text-lg sm:text-xl text-paper/75 mt-5">우리의 이야기가 한 권의 책이 되는 곳</p>
+                    <p class="text-[15px] sm:text-base text-paper/60 leading-relaxed max-w-xl mt-6">
+                        각자의 자리에서 묵묵히 한 시대를 일구어 온 열 분의 삶과 지혜,
+                        그리고 사랑하는 이들에게 남기는 목소리를 한자리에 모은 디지털 유산 공간입니다.
+                    </p>
+                    <div class="flex flex-wrap gap-3 mt-9">
+                        <button onclick="scrollToId('bookshelfSection')" class="group px-7 py-4 rounded-full bg-gold text-night font-bold hover:bg-goldLight transition-all shadow-[0_10px_30px_-8px_rgba(201,164,92,.7)] flex items-center gap-2">
+                            <i data-lucide="library" class="w-5 h-5"></i>
+                            <span>10인의 서재 둘러보기</span>
+                            <i data-lucide="arrow-down" class="w-4 h-4 group-hover:translate-y-0.5 transition-transform"></i>
+                        </button>
+                        <button onclick="scrollToId('guestbookSection')" class="px-7 py-4 rounded-full border border-paper/25 text-paper font-medium hover:bg-paper/10 hover:border-paper/50 transition-colors flex items-center gap-2">
+                            <i data-lucide="feather" class="w-5 h-5"></i>
+                            <span>방명록 남기기</span>
+                        </button>
+                    </div>
+
+                    <dl class="grid grid-cols-3 max-w-md mt-12 pt-8 border-t border-paper/10">
+                        <div><dt class="text-[11px] tracking-widest text-paper/45">LIVES</dt><dd class="font-serif text-3xl sm:text-4xl font-bold text-goldLight mt-1">10<span class="text-base text-paper/50 ml-1">인</span></dd></div>
+                        <div><dt class="text-[11px] tracking-widest text-paper/45">CHAPTERS</dt><dd class="font-serif text-3xl sm:text-4xl font-bold text-goldLight mt-1">40<span class="text-base text-paper/50 ml-1">장</span></dd></div>
+                        <div><dt class="text-[11px] tracking-widest text-paper/45">VOICES</dt><dd class="font-serif text-3xl sm:text-4xl font-bold text-goldLight mt-1">30<span class="text-base text-paper/50 ml-1">편</span></dd></div>
+                    </dl>
+                </div>
+
+                <div class="lg:col-span-6 reveal" style="transition-delay:.15s">
+                    <div class="relative mx-auto max-w-[560px]">
+                        <div class="absolute -inset-10 rounded-full bg-[radial-gradient(closest-side,rgba(236,186,110,.18),transparent)] pointer-events-none"></div>
+                        <div id="heroShelf" class="relative flex items-end justify-center gap-[3px] sm:gap-1 h-[270px] sm:h-[340px] px-2"></div>
+                        <div class="shelf-plank relative"></div>
+                        <p class="text-center text-sm text-paper/45 mt-8 flex items-center justify-center gap-2">
+                            <i data-lucide="mouse-pointer-click" class="w-4 h-4 text-goldLight/70"></i>
+                            책등을 누르면 그분의 서재로 들어갑니다
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10인의 서재 -->
+        <section id="bookshelfSection" class="paper-tex scroll-mt-20">
+            <div class="max-w-7xl mx-auto py-20 sm:py-28 px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+                    <span class="eyebrow text-terracotta">The 10 Bookshelves</span>
+                    <h2 class="font-serif text-3xl sm:text-[2.6rem] font-bold text-ink mt-4 leading-tight">열 분의 개인 서재로<br class="sm:hidden"> 초대합니다</h2>
+                    <div class="flex items-center justify-center gap-3 mt-6"><span class="rule-gold w-16"></span><span class="diamond"></span><span class="rule-gold w-16"></span></div>
+                    <p class="text-muted mt-6">책 한 권이 한 분의 인생입니다. 표지를 누르시면 자서전과 사진, 영상, 목소리가 담긴 서재가 열립니다.</p>
+                </div>
+                <div id="membersGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 sm:gap-x-8 gap-y-14"></div>
+            </div>
+        </section>
+
+        <!-- 설립 취지 -->
+        <section class="grain relative overflow-hidden bg-walnut text-paper">
+            <div class="absolute inset-0 bg-[radial-gradient(60%_80%_at_50%_0%,rgba(201,164,92,.16),transparent)] pointer-events-none"></div>
+            <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 text-center">
+                <i data-lucide="quote" class="w-10 h-10 mx-auto text-gold/70 reveal"></i>
+                <blockquote class="font-serif text-2xl sm:text-4xl leading-snug font-bold mt-6 reveal">
+                    한 사람의 인생은<br><span class="gold-foil">한 권의 위대한 책</span>과 같습니다.
+                </blockquote>
+                <p class="text-paper/60 leading-relaxed max-w-2xl mx-auto mt-8 reveal">
+                    2026년, 오랜 세월 우정과 신뢰로 함께 걸어온 열 분의 삶이 잊히지 않도록 자서전, 리마인드 사진, 삶의 동영상,
+                    그리고 다정한 육성을 한곳에 엮어 '황재복 라이브러리'를 개관하였습니다.
+                    가족과 후손, 지인들이 언제든 찾아와 삶의 지혜를 나누는 따뜻한 디지털 쉼터가 되기를 바랍니다.
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-14 text-left">
+                    <div class="reveal rounded-2xl border border-gold/20 bg-white/[.03] p-5" style="transition-delay:0s">
+                        <i data-lucide="book-open-text" class="w-7 h-7 text-goldLight"></i>
+                        <p class="font-serif font-bold text-lg mt-4">자서전</p><p class="text-sm text-paper/55 mt-1">책장을 넘기듯 읽는 네 장의 인생 이야기</p>
+                    </div>
+                    <div class="reveal rounded-2xl border border-gold/20 bg-white/[.03] p-5" style="transition-delay:.08s">
+                        <i data-lucide="images" class="w-7 h-7 text-goldLight"></i>
+                        <p class="font-serif font-bold text-lg mt-4">리마인드 사진</p><p class="text-sm text-paper/55 mt-1">청춘과 오늘을 나란히 비교하는 사진관</p>
+                    </div>
+                    <div class="reveal rounded-2xl border border-gold/20 bg-white/[.03] p-5" style="transition-delay:.16s">
+                        <i data-lucide="clapperboard" class="w-7 h-7 text-goldLight"></i>
+                        <p class="font-serif font-bold text-lg mt-4">삶의 동영상</p><p class="text-sm text-paper/55 mt-1">인터뷰와 가족 축하 영상을 담은 극장</p>
+                    </div>
+                    <div class="reveal rounded-2xl border border-gold/20 bg-white/[.03] p-5" style="transition-delay:.24s">
+                        <i data-lucide="disc-3" class="w-7 h-7 text-goldLight"></i>
+                        <p class="font-serif font-bold text-lg mt-4">목소리 기록</p><p class="text-sm text-paper/55 mt-1">큰 글씨 자막과 함께 듣는 육성 레코드</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 방명록 -->
+        <section id="guestbookSection" class="paper-tex scroll-mt-20">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+                <div class="text-center mb-14 reveal">
+                    <span class="eyebrow text-terracotta">Shared Guestbook</span>
+                    <h2 class="font-serif text-3xl sm:text-[2.6rem] font-bold text-ink mt-4">함께 남기는 방명록</h2>
+                    <div class="flex items-center justify-center gap-3 mt-6"><span class="rule-gold w-16"></span><span class="diamond"></span><span class="rule-gold w-16"></span></div>
+                    <p class="text-muted mt-6">열 분의 주인공과 가족들에게 따뜻한 응원과 감사의 인사를 남겨주세요.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-5 gap-8 items-start">
+                    <form onsubmit="addGuestbookEntry(event)" class="card lg:col-span-2 p-6 sm:p-8 lg:sticky lg:top-28 reveal">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-11 h-11 rounded-full bg-ink text-goldLight grid place-items-center"><i data-lucide="pen-line" class="w-5 h-5"></i></div>
+                            <div><p class="font-serif font-bold text-lg text-ink">편지 쓰기</p><p class="text-xs text-muted">남겨주신 글은 이 기기에 보관됩니다</p></div>
+                        </div>
+                        <label for="guestName" class="block text-sm font-bold text-ink mb-1.5">남기시는 분 성함</label>
+                        <input type="text" id="guestName" required maxlength="30" placeholder="예: 김민수 (아들)" class="field mb-4">
+                        <label for="guestTarget" class="block text-sm font-bold text-ink mb-1.5">전하는 대상</label>
+                        <select id="guestTarget" class="field mb-4">
+                            <option value="열 분 모두">황재복 라이브러리 열 분 모두에게</option>
+                        </select>
+                        <label for="guestMessage" class="block text-sm font-bold text-ink mb-1.5">따뜻한 메시지</label>
+                        <textarea id="guestMessage" rows="4" required maxlength="400" placeholder="어르신들의 빛나는 삶의 기록을 보며 큰 감동을 받았습니다. 늘 건강하세요!" class="field resize-none"></textarea>
+                        <button type="submit" class="mt-6 w-full px-6 py-4 rounded-full bg-ink hover:bg-terracottaDark text-paper font-bold transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>방명록 등록하기</span>
+                        </button>
+                    </form>
+
+                    <div class="lg:col-span-3">
+                        <div class="flex items-center justify-between mb-5">
+                            <p class="font-serif font-bold text-ink">도착한 편지 <span id="guestCount" class="text-terracotta ml-1">0</span>통</p>
+                        </div>
+                        <div id="guestbookList" class="grid sm:grid-cols-2 gap-5"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ═════════ VIEW 2 : 개인 서재 ═════════ -->
+    <section id="studyView" class="hidden flex-grow pb-24 paper-tex">
+
+        <!-- 개인 히어로 -->
+        <div id="studyHero" class="grain relative overflow-hidden text-paper"
+             style="background: radial-gradient(70% 120% at 12% 0%, color-mix(in srgb, var(--member) 70%, transparent), transparent 65%), radial-gradient(50% 80% at 100% 100%, color-mix(in srgb, var(--member) 30%, transparent), transparent 70%), linear-gradient(180deg, #1B140F, #110C09);">
+            <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+                <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
+                    <button onclick="navigateToLobby()" class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-paper/20 hover:bg-paper hover:text-night transition-colors">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i><span>메인 로비</span>
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="goSibling(-1)" class="inline-flex items-center gap-1 px-3.5 py-2 rounded-full border border-paper/20 hover:bg-paper/10 transition-colors" aria-label="이전 서재"><i data-lucide="chevron-left" class="w-4 h-4"></i><span id="prevName" class="hidden sm:inline">이전</span></button>
+                        <button onclick="goSibling(1)" class="inline-flex items-center gap-1 px-3.5 py-2 rounded-full border border-paper/20 hover:bg-paper/10 transition-colors" aria-label="다음 서재"><span id="nextName" class="hidden sm:inline">다음</span><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 flex flex-col md:flex-row items-center gap-10 md:gap-14">
+                <div class="relative shrink-0">
+                    <div class="absolute -inset-3 rounded-[2.2rem] border border-gold/30"></div>
+                    <div id="studyAvatarBox" class="relative w-40 h-52 sm:w-48 sm:h-60 rounded-[1.8rem] overflow-hidden shadow-[0_30px_60px_-20px_rgba(0,0,0,.8)] ring-1 ring-gold/50"></div>
+                    <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1.5 rounded-full bg-gold text-night text-xs font-bold shadow-lg">
+                        <span id="studyBookVol">제 1권</span>
+                    </div>
+                </div>
+                <div class="text-center md:text-left flex-grow">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-goldLight/30 bg-white/5 text-goldLight text-sm font-medium" id="studyEra">1948년생</div>
+                    <h1 class="font-serif font-bold mt-5 leading-tight">
+                        <span id="studyName" class="text-5xl sm:text-6xl tracking-tight">황재복</span>
+                        <span class="text-xl sm:text-2xl font-normal text-paper/60 ml-1">님의 서재</span>
+                    </h1>
+                    <blockquote class="relative font-serif text-lg sm:text-[1.35rem] leading-relaxed text-paper/90 mt-6 md:pl-6 md:border-l-2 border-gold/60" id="studyMotto"></blockquote>
+                    <p class="text-paper/55 text-[15px] leading-relaxed mt-4 max-w-2xl md:mx-0 mx-auto" id="studyShortBio"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 -->
+        <div class="sticky top-20 z-30 bg-paper/90 backdrop-blur-xl border-b border-ink/10">
+            <div class="max-w-6xl mx-auto px-2 sm:px-6">
+                <nav class="grid grid-cols-4 gap-1 sm:gap-2 py-2.5" aria-label="개인 서재 메뉴">
+                    <button onclick="switchStudyTab('autobiography')" id="tab-autobiography" class="study-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-1 rounded-2xl font-bold text-[13px] sm:text-base">
+                        <i data-lucide="book-open-check" class="w-5 h-5"></i><span>자서전</span>
+                    </button>
+                    <button onclick="switchStudyTab('photos')" id="tab-photos" class="study-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-1 rounded-2xl font-bold text-[13px] sm:text-base">
+                        <i data-lucide="image" class="w-5 h-5"></i><span>사진관</span>
+                    </button>
+                    <button onclick="switchStudyTab('video')" id="tab-video" class="study-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-1 rounded-2xl font-bold text-[13px] sm:text-base">
+                        <i data-lucide="film" class="w-5 h-5"></i><span>동영상</span>
+                    </button>
+                    <button onclick="switchStudyTab('voice')" id="tab-voice" class="study-tab flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2.5 sm:py-3 px-1 rounded-2xl font-bold text-[13px] sm:text-base">
+                        <i data-lucide="mic" class="w-5 h-5"></i><span>목소리</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
+
+            <!-- [탭 1] 자서전 -->
+            <div id="content-autobiography" class="study-tab-panel space-y-12">
+                <div class="card p-5 sm:p-10">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+                        <div>
+                            <span class="section-label eyebrow">Digital Autobiography</span>
+                            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-3" id="ebookTitle">자서전</h2>
+                        </div>
+                        <span class="self-start sm:self-auto px-4 py-1.5 rounded-full bg-ink text-goldLight text-sm font-bold" id="ebookPageIndicator">1 / 4 장</span>
+                    </div>
+
+                    <div id="ebookViewer" class="spread rounded-xl p-6 sm:p-12 min-h-[380px] grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
+                        <div class="flex flex-col justify-between md:pr-3 border-b md:border-b-0 border-ink/10 pb-6 md:pb-0">
+                            <div>
+                                <span class="eyebrow text-member" id="ebookChapterNum">PROLOGUE</span>
+                                <p class="text-sm text-muted mt-3" id="ebookChapterLabel"></p>
+                                <h3 class="font-serif text-2xl sm:text-[1.9rem] font-bold text-ink leading-snug mt-1" id="ebookChapterTitle"></h3>
+                                <div class="flex items-center gap-2 my-6"><span class="w-10 h-px bg-member"></span><span class="diamond" style="background:var(--member)"></span></div>
+                                <p class="font-serif text-[17px] text-ink/70 leading-relaxed" id="ebookChapterQuote"></p>
+                            </div>
+                            <div class="hidden md:flex items-center justify-between pt-6 text-xs text-muted">
+                                <span class="tracking-widest">황재복 라이브러리 소장본</span>
+                                <span id="ebookLeftPageNum" class="font-serif">— 1 —</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col justify-between md:pl-3">
+                            <p class="drop-cap font-serif text-[17px] sm:text-lg text-ink leading-[2] whitespace-pre-line" id="ebookChapterBody"></p>
+                            <div class="mt-8 flex items-center justify-between text-xs text-muted">
+                                <span id="ebookAuthorSign" class="font-hand text-2xl text-ink/80">황재복 씀</span>
+                                <span id="ebookRightPageNum" class="font-serif">— 2 —</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 flex items-center justify-between gap-4">
+                        <button onclick="prevEbookPage()" id="btnPrevPage" class="px-5 sm:px-7 py-3.5 rounded-full border border-ink/15 hover:bg-ink hover:text-paper text-ink font-bold transition-colors flex items-center gap-2 disabled:opacity-30 disabled:pointer-events-none">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i><span>이전 장</span>
+                        </button>
+                        <div id="ebookDots" class="flex items-center gap-2"></div>
+                        <button onclick="nextEbookPage()" id="btnNextPage" class="px-5 sm:px-7 py-3.5 rounded-full bg-ink hover:bg-terracottaDark text-paper font-bold transition-colors flex items-center gap-2 disabled:opacity-30 disabled:pointer-events-none">
+                            <span>다음 장</span><i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <p class="hidden sm:block text-center text-xs text-muted mt-4">키보드 ← → 화살표로도 책장을 넘길 수 있습니다</p>
+                </div>
+
+                <div class="card p-6 sm:p-10">
+                    <span class="section-label eyebrow">Life Timeline</span>
+                    <h3 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-3 mb-10">걸어온 발자취</h3>
+                    <div id="timelineContainer" class="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6"></div>
+                </div>
+            </div>
+
+            <!-- [탭 2] 사진관 -->
+            <div id="content-photos" class="study-tab-panel hidden space-y-14">
+                <div class="card p-5 sm:p-10">
+                    <span class="section-label eyebrow">Before &amp; After</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-3">청춘의 그날, 그리고 오늘</h2>
+                    <p class="text-muted mt-2 mb-8">가운데 손잡이를 좌우로 끌어 젊은 시절과 현재의 모습을 비교해 보세요.</p>
+
+                    <div id="compareBox" class="compare-container w-full h-80 sm:h-[26rem] rounded-2xl shadow-[0_30px_60px_-30px_rgba(0,0,0,.6)]">
+                        <div class="golden-scene w-full h-full flex flex-col items-center justify-center p-6 text-center">
+                            <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white/70 grid place-items-center shadow-xl mb-5 ring-4 ring-white/60">
+                                <i data-lucide="sun" class="w-12 h-12 sm:w-16 sm:h-16 text-terracotta"></i>
+                            </div>
+                            <span class="px-3.5 py-1 rounded-full bg-terracottaDark text-white text-xs font-bold mb-3" id="compareAfterYear">오늘의 리마인드</span>
+                            <p class="font-serif text-xl sm:text-3xl font-bold text-ink" id="compareAfterText"></p>
+                            <p class="text-sm sm:text-base text-ink/70 mt-2 max-w-md" id="compareAfterSub"></p>
+                        </div>
+                        <div id="compareOverlay" class="compare-overlay" style="width:50%">
+                            <div id="compareBeforeInner" class="sepia-scene h-full flex flex-col items-center justify-center p-6 text-center text-paper">
+                                <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-paper/10 grid place-items-center shadow-xl mb-5 ring-4 ring-paper/25">
+                                    <i data-lucide="camera" class="w-12 h-12 sm:w-16 sm:h-16 text-paper/80"></i>
+                                </div>
+                                <span class="px-3.5 py-1 rounded-full bg-paper/20 text-paper text-xs font-bold mb-3" id="compareBeforeYear">젊은 시절의 기록</span>
+                                <p class="font-serif text-xl sm:text-3xl font-bold" id="compareBeforeText"></p>
+                                <p class="text-sm sm:text-base text-paper/70 mt-2 max-w-md" id="compareBeforeSub"></p>
+                            </div>
+                        </div>
+                        <div id="compareHandle" class="compare-handle" style="left:50%" tabindex="0" role="slider" aria-label="과거와 현재 비교" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+                            <div class="knob w-12 h-12 rounded-full bg-cream text-ink shadow-2xl grid place-items-center absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ring-2 ring-gold">
+                                <i data-lucide="move-horizontal" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <span class="absolute top-4 left-4 z-10 px-3 py-1 rounded-full bg-black/40 text-paper text-xs font-bold backdrop-blur pointer-events-none">THEN</span>
+                        <span class="absolute top-4 right-4 z-10 px-3 py-1 rounded-full bg-white/60 text-ink text-xs font-bold backdrop-blur pointer-events-none">NOW</span>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="text-center mb-12">
+                        <span class="section-label eyebrow justify-center">Photo Album</span>
+                        <h3 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-3">테마별 포토 앨범</h3>
+                        <p class="text-muted mt-2">사진을 누르시면 그 뒤에 숨겨진 에피소드를 읽으실 수 있습니다.</p>
+                    </div>
+                    <div id="photoCardsGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8 px-2 sm:px-0"></div>
+                </div>
+            </div>
+
+            <!-- [탭 3] 동영상 -->
+            <div id="content-video" class="study-tab-panel hidden">
+                <div class="card p-5 sm:p-10">
+                    <span class="section-label eyebrow">Life Cinema</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-3 mb-8" id="videoMainTitle">인생 다큐멘터리</h2>
+
+                    <div id="videoScreen" class="screen relative rounded-2xl overflow-hidden aspect-video text-paper shadow-[0_40px_70px_-30px_rgba(0,0,0,.8)] ring-1 ring-black/40 cursor-pointer" onclick="toggleVideoPlay()">
+                        <div class="kenburns absolute inset-0" style="background: radial-gradient(60% 70% at 50% 45%, color-mix(in srgb, var(--member) 55%, #1a120c), #0A0706 75%);"></div>
+                        <div class="projector"></div>
+                        <div class="film-grain"></div>
+                        <div class="vignette"></div>
+                        <div class="absolute inset-x-0 top-0 h-[7%] bg-black"></div>
+                        <div class="absolute inset-x-0 bottom-0 h-[7%] bg-black"></div>
+
+                        <div id="videoIdle" class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10">
+                            <div class="relative mb-5 sm:mb-7">
+                                <span class="absolute inset-0 rounded-full bg-gold/40 animate-ping"></span>
+                                <span class="relative w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gold text-night grid place-items-center shadow-2xl"><i data-lucide="play" class="w-8 h-8 sm:w-10 sm:h-10 ml-1"></i></span>
+                            </div>
+                            <span id="videoStatusBadge" class="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/15 text-[11px] sm:text-xs font-medium mb-3 tracking-wide">HD 인터뷰 다큐멘터리</span>
+                            <h3 class="font-serif text-lg sm:text-3xl font-bold max-w-2xl leading-snug" id="videoScreenCaption"></h3>
+                            <p class="hidden sm:block text-sm text-paper/60 mt-3" id="videoSubDesc">화면을 누르시면 상영이 시작됩니다.</p>
+                        </div>
+                        <div class="absolute inset-x-0 bottom-[16%] z-10 flex justify-center px-6 pointer-events-none">
+                            <p id="videoSubtitle" class="opacity-0 font-serif text-base sm:text-2xl text-center max-w-3xl bg-black/55 px-4 py-2 rounded-lg leading-relaxed"></p>
+                        </div>
+                        <div class="absolute top-[10%] left-4 sm:left-6 z-10 hidden items-center gap-2 text-[11px] font-bold tracking-widest text-paper/80" id="videoLiveTag">
+                            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> NOW PLAYING
+                        </div>
+
+                        <div class="absolute bottom-0 inset-x-0 z-20 bg-gradient-to-t from-black/90 to-transparent px-4 sm:px-6 pt-8 pb-3 flex items-center gap-3 sm:gap-4" onclick="event.stopPropagation()">
+                            <button onclick="toggleVideoPlay()" id="videoPlayBtn" class="w-10 h-10 rounded-full bg-paper/15 hover:bg-gold hover:text-night grid place-items-center shrink-0 transition-colors" aria-label="재생/일시정지"></button>
+                            <span class="text-xs font-mono text-paper/80 shrink-0" id="videoTimeText">00:00 / 12:40</span>
+                            <div id="videoTrack" class="flex-grow h-1.5 bg-white/20 rounded-full overflow-hidden cursor-pointer" onclick="seekVideo(event)">
+                                <div id="videoProgressBar" class="h-full bg-gold w-0"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-10">
+                        <h4 class="font-serif font-bold text-lg text-ink mb-4">추억의 영상 클립</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="videoChaptersGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [탭 4] 목소리 -->
+            <div id="content-voice" class="study-tab-panel hidden">
+                <div class="card p-5 sm:p-10">
+                    <span class="section-label eyebrow">Voice Archive</span>
+                    <h2 class="font-serif text-2xl sm:text-3xl font-bold text-ink mt-3">마음을 울리는 목소리 기록관</h2>
+                    <p class="text-muted mt-2 mb-8">레코드를 재생하면 직접 낭독하신 육성과 함께 아래에 큰 글씨 자막이 따라 흐릅니다.</p>
+
+                    <div class="deck grain relative rounded-[1.75rem] p-6 sm:p-10 text-paper overflow-hidden">
+                        <div class="relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                            <div class="relative w-[260px] h-[230px] shrink-0">
+                                <div class="absolute left-0 top-[5px] w-[220px] h-[220px] rounded-full bg-black/40 shadow-[inset_0_2px_10px_rgba(0,0,0,.8)]"></div>
+                                <div id="vinylDisc" class="vinyl vinyl-spin paused absolute left-[6px] top-[11px] w-[208px] h-[208px] grid place-items-center">
+                                    <div id="vinylLabel" class="w-[76px] h-[76px] rounded-full grid place-items-center text-center bg-member ring-2 ring-black/30">
+                                        <div>
+                                            <div class="text-[8px] tracking-[.25em] text-goldLight/90 font-bold">HJB · VOICE</div>
+                                            <div id="vinylName" class="font-serif text-sm font-bold text-paper mt-0.5">황재복</div>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-night mx-auto mt-1 ring-1 ring-goldLight/40"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="vinyl-sheen absolute left-[6px] top-[11px] w-[208px] h-[208px]"></div>
+                                <div id="tonearm" class="tonearm right-[6px] top-[-4px] w-[26px] h-[178px]">
+                                    <div class="absolute left-0 top-0 w-[26px] h-[26px] rounded-full bg-gradient-to-br from-[#E8E4DC] to-[#8C867C] shadow-lg ring-2 ring-black/30"></div>
+                                    <div class="absolute left-[10px] top-[13px] w-[6px] h-[150px] rounded-full bg-gradient-to-r from-[#B9B3A8] via-[#F2EEE6] to-[#8C867C] shadow"></div>
+                                    <div class="absolute left-[5px] top-[156px] w-[16px] h-[24px] rounded-[3px] bg-gradient-to-b from-[#3A3430] to-[#141110] ring-1 ring-white/10"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex-grow w-full text-center md:text-left">
+                                <div class="flex items-center justify-center md:justify-start gap-3">
+                                    <span class="inline-block px-3 py-1 rounded-full bg-gold/15 border border-gold/30 text-goldLight text-xs font-bold tracking-wide" id="voiceTrackBadge">TRACK 01</span>
+                                    <div id="eqBars" class="eq flex items-end gap-[3px] h-5"><span></span><span></span><span></span><span></span><span></span></div>
+                                </div>
+                                <h3 class="font-serif text-2xl sm:text-3xl font-bold mt-4 leading-snug" id="voiceTrackTitle"></h3>
+                                <p class="text-sm text-paper/55 mt-2" id="voiceTrackMeta"></p>
+                                <div class="flex flex-col sm:flex-row items-center gap-4 mt-7">
+                                    <button onclick="toggleAudioPlay()" id="audioPlayBtn" class="px-7 py-3.5 rounded-full bg-gold hover:bg-goldLight text-night font-bold shadow-[0_10px_24px_-8px_rgba(201,164,92,.8)] transition-colors flex items-center gap-2 shrink-0"></button>
+                                    <div class="w-full flex items-center gap-3">
+                                        <span class="text-xs font-mono text-paper/70" id="audioCurrentTime">00:00</span>
+                                        <div class="flex-grow h-1.5 bg-paper/15 rounded-full overflow-hidden cursor-pointer" onclick="seekAudio(event)">
+                                            <div id="audioProgressBar" class="h-full bg-gradient-to-r from-gold to-goldLight w-0"></div>
+                                        </div>
+                                        <span class="text-xs font-mono text-paper/70" id="audioTotalTime">02:15</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 pt-8 border-t border-paper/10" id="voiceTracksList"></div>
+                    </div>
+
+                    <div class="mt-8 rounded-2xl p-6 sm:p-10 bg-[#FAF5EA] border border-[#E6DAC3]">
+                        <div class="flex items-center gap-2 text-ink font-bold mb-5">
+                            <i data-lucide="captions" class="w-5 h-5 text-member"></i>
+                            <span>음성 전체 자막 <span class="font-normal text-muted text-sm">· 큰 글씨 읽기 지원</span></span>
+                        </div>
+                        <p class="transcript font-serif text-xl sm:text-2xl text-ink leading-[1.9]" id="voiceTranscriptText"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 사진 모달 -->
+    <div id="photoModal" class="fixed inset-0 z-50 hidden bg-night/80 backdrop-blur-md flex items-center justify-center p-4" onclick="closePhotoModal(event)">
+        <div class="bg-cream rounded-[1.75rem] max-w-lg w-full overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
+            <div id="modalPhotoVisual" class="photo-visual" style="aspect-ratio:16/9"></div>
+            <button onclick="closePhotoModal()" class="absolute top-4 right-4 w-11 h-11 rounded-full bg-black/40 text-paper hover:bg-paper hover:text-ink grid place-items-center transition-colors backdrop-blur" aria-label="닫기">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="p-6 sm:p-8">
+                <div class="flex items-center justify-between">
+                    <span id="modalPhotoTheme" class="eyebrow text-member"></span>
+                    <span id="modalPhotoYear" class="font-hand text-2xl text-muted"></span>
+                </div>
+                <h3 id="modalPhotoTitle" class="font-serif text-2xl font-bold text-ink mt-2 mb-4"></h3>
+                <p id="modalPhotoStory" class="text-ink/80 leading-relaxed text-[17px]"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 토스트 -->
+    <div id="toast" class="toast fixed bottom-6 left-1/2 z-[60] px-5 py-3.5 rounded-full bg-ink text-paper text-sm font-medium shadow-2xl flex items-center gap-2">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-goldLight"></i><span id="toastText">등록되었습니다</span>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="grain relative bg-night text-paper/70 mt-auto overflow-hidden">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full border border-gold/50 grid place-items-center text-goldLight font-serif font-black text-xl">黃</div>
+                    <div>
+                        <p class="font-serif font-bold text-lg text-paper">황재복 라이브러리 <span class="text-paper/40 font-normal text-sm ml-1">Hwang Jae-bok Library</span></p>
+                        <p class="text-sm text-paper/50 mt-1">열 분의 소중한 삶과 기억을 영원히 보존하는 디지털 유산 아카이브</p>
+                    </div>
+                </div>
+                <div class="text-xs text-paper/40">© 2026 황재복 라이브러리 추진위원회. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const libraryMembers = [
+            {
+                id: 1,
+                vol: "제 1권",
+                name: "황재복",
+                era: "1948년생 · 교육자 및 라이브러리 설립자",
+                spineColor: "#8B4513", // 따뜻한 새들 브라운
+                catchphrase: "한 그루 나무를 심는 마음으로 사람을 대하고, 기록으로 내일을 밝힌다.",
+                shortBio: "40여 년간 교단에서 후학을 양성하며 배움과 나눔의 가치를 실천했습니다. 동료들과 함께 걸어온 세월을 잊지 않기 위해 '황재복 라이브러리'의 문을 열었습니다.",
+                bookTitle: "자서전 : 세월의 강을 건너며",
+                pages: [
+                    {
+                        title: "프롤로그 : 오래된 일기장을 펼치며",
+                        content: "책상 서랍 깊숙이 보관해 둔 빛바랜 일기장들을 꺼내 듭니다. 1970년대 분필 가루 날리던 작은 시골 학교의 교실 풍경부터, 숱한 밤을 지새우며 고민했던 제자들의 얼굴까지 한 장 한 장 넘길 때마다 어제 일처럼 선명합니다.\n\n우리 열 명의 친구와 동지들이 함께 걸어온 이 길은 결코 혼자만의 발자국이 아니었습니다. 서로가 서로의 등불이 되어주었기에 어두운 밤길도 두렵지 않았습니다."
+                    },
+                    {
+                        title: "제1장 : 흙냄새와 함께 자란 유년 시절",
+                        content: "전쟁의 상흔이 채 가시지 않았던 어린 시절, 우리에게 가장 큰 놀이터는 뒷산과 냇가였습니다. 비록 가진 것은 넉넉지 않았으나 어른들의 따뜻한 눈빛과 이웃 간의 정이 넘치던 시절이었습니다.\n\n어머니께서 호롱불 아래서 밤늦도록 책을 읽어주시던 그 목소리가 제 인생을 교육자의 길로 이끈 첫 번째 씨앗이 되었습니다."
+                    },
+                    {
+                        title: "제2장 : 교단 위에서 만난 보석 같은 아이들",
+                        content: "첫 부임지였던 산골 분교의 겨울은 유난히 추웠습니다. 난로 위에 도시락을 데워 먹으며 아이들과 함께 웃고 울던 그 시절이 제 인생에서 가장 빛나던 황금기였습니다.\n\n가르침은 지식을 전달하는 것이 아니라, 한 사람의 가능성을 끝까지 믿어주는 기다림이라는 것을 아이들을 통해 배웠습니다."
+                    },
+                    {
+                        title: "에필로그 : 사랑하는 가족과 벗들에게",
+                        content: "이제 인생의 황혼녘에서 뒤를 돌아보니, 거창한 업적보다 곁을 지켜준 아내와 건강하게 자라준 자녀들, 그리고 이 서재를 함께 채워준 아홉 분의 귀한 인연이 가장 큰 재산임을 깨닫습니다.\n\n이 기록이 후손들에게 작은 위로와 용기의 이정표가 되기를 소망합니다."
+                    }
+                ],
+                timeline: [
+                    { year: "1948", title: "출생 및 유년기", desc: "따뜻한 농촌 마을에서 태어나 자연과 벗하며 성장" },
+                    { year: "1972", title: "교직 첫 발령", desc: "초등 교사로 부임하여 40년 교육 외길의 시작을 알림" },
+                    { year: "1998", title: "지역 청소년 장학회 설립", desc: "형편이 어려운 학생들을 돕기 위한 작은 도서관과 장학 기금 조성" },
+                    { year: "2026", title: "황재복 라이브러리 개관", desc: "평생의 동지 9인과 함께 디지털 자서전 아카이브 출간" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1974년 봄", title: "분교 운동장에서 아이들과", icon: "users", story: "벚꽃이 만개한 운동장에서 졸업반 아이들과 찍은 흑백 사진입니다. 지금도 명절이면 연락을 주는 고마운 제자들입니다." },
+                    { theme: "가족과 함께", year: "1985년 여름", title: "가족과 함께한 첫 동해 여행", icon: "sun", story: "밤새 기차를 타고 도착한 정동진 바닷가에서 아이들이 처음 파도를 보고 환호하던 순간을 담았습니다." },
+                    { theme: "인생의 황금기", year: "2026년 가을", title: "황재복 라이브러리 헌정식", icon: "book-open", story: "열 분의 자서전이 완성되던 날, 함께 모여 서로의 인생을 축복하며 남긴 기념사진입니다." }
+                ],
+                voices: [
+                    {
+                        title: "자서전 서문 낭독 : 세월의 강을 건너며",
+                        duration: "02:15",
+                        transcript: "사랑하는 가족, 그리고 이 서재를 찾아주신 반가운 분들께 인사를 올립니다. 제 이름 석 자를 걸고 이렇게 열 분의 귀한 이야기를 한곳에 모을 수 있어 더없이 영광스럽습니다. 우리가 살아온 날들이 누군가에게는 따뜻한 찻잔 같은 위로가 되기를 바랍니다."
+                    },
+                    {
+                        title: "사랑하는 아내와 자녀들에게 남기는 편지",
+                        duration: "01:48",
+                        transcript: "평생 바쁘다는 핑계로 살갑게 표현하지 못했던 마음, 오늘 이 목소리에 담아 전합니다. 묵묵히 집안을 지켜준 여보 고맙고 사랑합니다. 그리고 각자의 자리에서 훌륭히 살아가는 우리 아들, 딸아, 너희가 내 인생 최고의 자랑이란다."
+                    },
+                    {
+                        title: "인생의 애창곡 : 고향의 봄 흥얼거림",
+                        duration: "01:20",
+                        transcript: "♪ 나의 살던 고향은 꽃피는 산골, 복숭아꽃 살구꽃 아기 진달래... (잔잔한 휘파람과 함께 어린 시절 고향 뒷산을 떠올리며 부르신 육성 기록입니다.)"
+                    }
+                ]
+            },
+            {
+                id: 2,
+                vol: "제 2권",
+                name: "김철수",
+                era: "1949년생 · 정밀 기계 기술 명장",
+                spineColor: "#9E4738", // 테라코타 브릭
+                catchphrase: "0.01밀리미터의 오차도 허용하지 않는 장인 정신, 정직한 땀방울의 가치.",
+                shortBio: "맨손으로 시작해 대한민국 산업화의 현장에서 정밀 기계 국산화를 이끌어낸 기술 명장의 자부심과 땀방울이 서린 공간입니다.",
+                bookTitle: "자서전 : 기름때 묻은 손의 자부심",
+                pages: [
+                    {
+                        title: "프롤로그 : 망치 소리가 음악처럼 들리던 시절",
+                        content: "작업복에 묻은 검은 기름때는 제게 가장 자랑스러운 훈장이었습니다. 선반 기계가 돌아가는 규칙적인 소리는 그 어떤 교향곡보다 힘차고 아름다웠습니다."
+                    },
+                    {
+                        title: "제1장 : 도면 한 장에 밤을 지새우다",
+                        content: "외국 기술에 의존하던 부품을 우리 손으로 직접 만들어보겠다는 일념으로 공장에서 쪽잠을 자며 연구에 매달렸습니다."
+                    },
+                    {
+                        title: "제2장 : 기술은 사람에게서 사람으로",
+                        content: "평생 익힌 노하우를 후배들에게 아낌없이 전수하는 것이 제 마지막 사명이라 생각했습니다. 땀은 결코 배신하지 않습니다."
+                    },
+                    {
+                        title: "에필로그 : 단단한 쇠처럼 흔들림 없이",
+                        content: "인생이라는 용광로 속에서 단련된 시간들이 오늘의 저를 만들었습니다. 정직하게 흘린 땀방울의 가치를 사랑하는 자녀들에게 물려주고 싶습니다."
+                    }
+                ],
+                timeline: [
+                    { year: "1949", title: "출생 및 공업고등학교 입학", desc: "기계 조립과 설계에 남다른 재능을 보임" },
+                    { year: "1974", title: "정밀 기계 공장 현장 기술자 입사", desc: "핵심 부품 국산화 프로젝트 성공에 기여" },
+                    { year: "2004", title: "대한민국 산업현장 명장 선정", desc: "30년 외길 기술 인생의 정점을 이룸" },
+                    { year: "2026", title: "황재복 라이브러리 제2권 등록", desc: "산업 역군으로서의 자부심을 자서전에 기록" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1979년 여름", title: "첫 국산화 시제품 완성의 순간", icon: "wrench", story: "수십 번의 실패 끝에 완벽하게 작동하는 부품을 손에 쥐고 동료들과 환호하던 역사적인 날입니다." },
+                    { theme: "가족과 함께", year: "1996년 봄", title: "작업복 차림으로 가족과 나들이", icon: "users", story: "휴일에도 공장에 들렀다 가족들과 함께 인근 공원에서 도시락을 먹으며 찍은 소중한 사진입니다." },
+                    { theme: "인생의 황금기", year: "2026년 가을", title: "명장 증서와 함께한 리마인드", icon: "award", story: "평생을 바친 기술인의 길을 자랑스럽게 회고하며 촬영한 기념 사진입니다." }
+                ],
+                voices: [
+                    {
+                        title: "자서전 서문 낭독 : 기름때 묻은 손의 자부심",
+                        duration: "02:00",
+                        transcript: "저는 화려한 말솜씨는 없지만, 쇠를 깎고 다듬으며 정직하게 살아온 세월만큼은 누구보다 떳떳합니다. 보이지 않는 곳에서 묵묵히 땀 흘리는 모든 이들에게 박수를 보냅니다."
+                    },
+                    {
+                        title: "아들에게 전하는 아버지의 인생 철학",
+                        duration: "01:45",
+                        transcript: "아들아, 세상이 아무리 빨리 변해도 기본을 지키는 성실함은 변하지 않는 법이다. 눈앞의 이익보다 긴 호흡으로 멀리 내다보는 사람이 되거라."
+                    },
+                    {
+                        title: "즐겨 부르던 노래 : 사나이 눈물",
+                        duration: "01:25",
+                        transcript: "♪ 사나이 가는 길에 비바람 불어도... (퇴근길 포장마차에서 동료들과 어깨동무하며 목청껏 부르던 청춘의 노래입니다.)"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                vol: "제 3권",
+                name: "이영희",
+                era: "1950년생 · 전통 섬유 공예가",
+                spineColor: "#A65E6E", // 빈티지 로즈우드
+                catchphrase: "한 올 한 올 정성으로 엮은 삶의 무늬, 인내 끝에 피어난 꽃.",
+                shortBio: "반세기 동안 전통 자수와 천연 염색의 길을 걸으며 한국의 아름다운 색채를 지켜온 장인입니다. 가족을 향한 헌신과 예술혼이 깃든 서재입니다.",
+                bookTitle: "자서전 : 바늘 끝에 맺힌 세월의 꽃",
+                pages: [
+                    {
+                        title: "프롤로그 : 쪽빛 물감을 들이던 날",
+                        content: "새벽 이슬을 밟으며 마당의 쪽 항아리를 저을 때마다, 인생도 이와 같다는 생각을 합니다. 수십 번 담그고 말리기를 반복해야 비로소 깊고 푸른 쪽빛이 우러나오듯, 우리의 삶도 숱한 인고의 시간을 거쳐 깊어집니다."
+                    },
+                    {
+                        title: "제1장 : 어머니의 반짇고리",
+                        content: "어릴 적 호롱불 아래서 밤새 가족들의 옷을 지으시던 어머니의 손끝을 보며 자랐습니다. 조각천을 이어 만든 보자기에는 복을 기원하는 어머니의 기도가 담겨 있었습니다."
+                    },
+                    {
+                        title: "제2장 : 세 아이의 어머니이자 예술가로",
+                        content: "낮에는 아이들을 돌보고 밤에는 수를 놓으며 보낸 치열한 세월이었습니다. 손가락 마디가 굵어질수록 제 작품의 선은 더욱 단단해졌습니다."
+                    },
+                    {
+                        title: "에필로그 : 다음 세대에게 물려줄 아름다움",
+                        content: "이제는 손주들에게 바느질을 가르치며 그 따뜻한 온기를 전합니다. 제 손끝에서 피어난 작은 꽃들이 여러분의 마음속에도 오래도록 지지 않기를 바랍니다."
+                    }
+                ],
+                timeline: [
+                    { year: "1950", title: "전통 공예 가문에서 출생", desc: "어머니로부터 전통 자수와 바느질 기초를 사사" },
+                    { year: "1976", title: "첫 개인 공방 개설", desc: "지역 여성들과 함께 전통 규방 공예 연구회 창립" },
+                    { year: "2005", title: "전통 공예 대전 특별상 수상", desc: "천연 염색과 조각보 작품으로 한국 미의 아름다움을 알림" },
+                    { year: "2026", title: "자서전 및 디지털 도록 발간", desc: "평생의 작품 사진과 삶의 이야기를 서재에 기록" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1978년 가을", title: "공방 마당에서 천을 말리며", icon: "sparkles", story: "가을 햇살 아래 쪽빛과 치자빛으로 물들인 명주 천이 바람에 흩날리던 아름다운 오후입니다." },
+                    { theme: "가족과 함께", year: "1992년 봄", title: "세 남매의 초등학교 입학식", icon: "heart", story: "직접 지어 입힌 한복을 입고 나란히 선 아이들의 모습에 세상을 다 가진 듯 뿌듯했습니다." },
+                    { theme: "인생의 황금기", year: "2025년 겨울", title: "손녀와 함께한 첫 바느질", icon: "smile", story: "고사리 같은 손으로 바늘을 잡은 손녀와 마주 앉아 웃음꽃을 피우던 날입니다." }
+                ],
+                voices: [
+                    {
+                        title: "자서전 서문 낭독 : 바늘 끝에 맺힌 세월",
+                        duration: "02:05",
+                        transcript: "한 땀 한 땀 정성을 다해 수를 놓듯 살아온 제 인생의 조각들을 모아보았습니다. 서툴고 모자란 부분도 있었지만, 곁에서 응원해 준 가족들 덕분에 아름다운 한 폭의 보자기가 완성되었습니다."
+                    },
+                    {
+                        title: "딸들에게 전하는 어머니의 당부",
+                        duration: "01:55",
+                        transcript: "사랑하는 내 딸들아, 살다 보면 매듭이 엉킬 때도 있단다. 그럴 땐 억지로 당기지 말고 잠시 숨을 고르며 천천히 풀어보렴. 엄마는 언제나 너희 편이란다."
+                    },
+                    {
+                        title: "어린 시절 자장가 낭독",
+                        duration: "01:15",
+                        transcript: "자장자장 우리 아기, 앞집 개도 짖지 마라... 세 아이를 재우며 수천 번도 더 불렀던 그 시절의 다정한 자장가입니다."
+                    }
+                ]
+            },
+            {
+                id: 4,
+                vol: "제 4권",
+                name: "박민수",
+                era: "1947년생 · 항해사 및 해양 엔지니어",
+                spineColor: "#2C5E7A", // 딥 마린 네이비
+                catchphrase: "거친 파도를 넘어 수평선 너머의 희망을 개척한 50년의 항해.",
+                shortBio: "1970년대 대한민국 해운 산업의 태동기부터 오대양을 누비며 조국 경제 발전의 물길을 열었던 바다 사나이의 뜨거운 기록입니다.",
+                bookTitle: "자서전 : 수평선 너머로 띄우는 편지",
+                pages: [
+                    {
+                        title: "프롤로그 : 뱃고동 소리가 들릴 때마다",
+                        content: "은퇴한 지 오랜 세월이 흘렀지만, 지금도 항구의 뱃고동 소리를 들으면 가슴이 뜁니다. 망망대해 위에서 별빛을 나침반 삼아 밤을 지새우던 그 시절의 낭만과 사명감을 이 책에 담았습니다."
+                    },
+                    {
+                        title: "제1장 : 부산항을 떠나 태평양으로",
+                        content: "스물넷 젊은 나이에 처음 원양 상선에 올랐습니다. 10미터가 넘는 집채만한 파도와 싸우면서도, 고국에 있는 가족들의 사진을 품에 안고 버텨냈습니다."
+                    },
+                    {
+                        title: "제2장 : 세계의 항구에서 배운 인생",
+                        content: "지구 세 바퀴 반을 돌며 수많은 나라와 사람들을 만났습니다. 바다는 국경이 없으며, 성실함과 정직함은 전 세계 어디서나 통하는 가장 강력한 언어임을 깨달았습니다."
+                    },
+                    {
+                        title: "에필로그 : 이제는 가족이라는 포구에 닻을 내리고",
+                        content: "긴 항해를 마치고 이제 가장 안전한 항구인 가족의 품에 닻을 내렸습니다. 거친 풍랑을 함께 견뎌준 아내에게 이 책의 모든 영광을 바칩니다."
+                    }
+                ],
+                timeline: [
+                    { year: "1947", title: "항구 도시에서 출생", desc: "파도 소리를 자장가 삼아 자라며 바다를 동경함" },
+                    { year: "1971", title: "원양 상선 기관사로 첫 승선", desc: "태평양과 대서양을 횡단하며 한국 해운의 역사를 씀" },
+                    { year: "1995", title: "선박 안전 관리 총괄 임명", desc: "후배 항해사 양성과 무사고 안전 운항 기록 달성" },
+                    { year: "2026", title: "황재복 라이브러리 제4권 헌정", desc: "오대양의 항해 일지와 추억을 디지털 서재로 완성" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1976년 여름", title: "희망봉을 지나며 갑판 위에서", icon: "compass", story: "아프리카 최남단 희망봉의 거친 파도를 무사히 넘긴 뒤 동료 선원들과 환호하며 찍은 사진입니다." },
+                    { theme: "가족과 함께", year: "1984년 겨울", title: "6개월 만의 귀항, 가족과의 상봉", icon: "anchor", story: "부두에서 기다리던 아내와 어린 아들을 두 팔 가득 안았던 그날의 온기를 잊을 수 없습니다." },
+                    { theme: "인생의 황금기", year: "2026년 봄", title: "손자와 함께 바라본 바다", icon: "sun", story: "할아버지의 젊은 시절 이야기를 들려주며 바닷가를 산책하던 평화로운 오후입니다." }
+                ],
+                voices: [
+                    {
+                        title: "자서전 서문 낭독 : 수평선 너머로",
+                        duration: "02:20",
+                        transcript: "바다는 늘 제게 두려움이자 동시에 가장 큰 스승이었습니다. 잔잔한 바다에서는 좋은 뱃사공이 나올 수 없듯, 인생의 파도 역시 우리를 더 단단하게 만들어 줍니다."
+                    },
+                    {
+                        title: "손자 민준이에게 들려주는 바다 이야기",
+                        duration: "01:50",
+                        transcript: "민준아, 네가 커서 어떤 길을 가든 넓고 깊은 바다 같은 마음을 품은 사람이 되길 바란다. 할아버지는 언제나 네 항해의 순풍을 빌어줄게."
+                    },
+                    {
+                        title: "선원들의 애창곡 : 연안부두 흥얼거림",
+                        duration: "01:30",
+                        transcript: "♪ 어쩌다 한 번 오는 저 배는 무슨 사연 싣고 오길래... (먼 바다에서 고국을 그리워하며 동료들과 함께 부르던 노래입니다.)"
+                    }
+                ]
+            },
+            {
+                id: 5,
+                vol: "제 5권",
+                name: "정수진",
+                era: "1952년생 · 마을 보건소 간호사",
+                spineColor: "#4A7056", // 포레스트 세이지
+                catchphrase: "가장 낮은 곳에서 이웃의 아픔을 어루만진 따뜻한 백의의 손길.",
+                shortBio: "의료 시설이 부족하던 시절, 오지 마을 구석구석을 자전거로 누비며 주민들의 건강과 생명을 지켜온 마을의 수호천사입니다.",
+                bookTitle: "자서전 : 골목길마다 피어난 온기",
+                pages: [
+                    {
+                        title: "프롤로그 : 가방 하나 메고 달리던 흙길",
+                        content: "청진기와 구급상자가 든 낡은 가죽 가방을 메고 논두렁길을 달리던 기억이 생생합니다. 아픈 이의 손을 잡아주는 것만으로도 치료의 절반은 시작된다는 믿음으로 살았습니다."
+                    },
+                    {
+                        title: "제1장 : 새벽을 깨우던 왕진 벨 소리",
+                        content: "한밤중에도 산모가 진통을 시작하면 어김없이 달려 나갔습니다. 새 생명의 첫 울음소리를 들을 때마다 느꼈던 그 벅찬 감동이 저를 지탱한 힘이었습니다."
+                    },
+                    {
+                        title: "제2장 : 어르신들의 말벗이 되어드린 세월",
+                        content: "주사 한 대보다 다정한 안부 인사가 더 큰 약이 되던 시절이었습니다. 마을 어르신들 모두가 제 친부모님 같았습니다."
+                    },
+                    {
+                        title: "에필로그 : 받은 사랑이 더 컸던 인생",
+                        content: "왕진을 마치고 돌아올 때면 주머니 가득 찐 감자와 옥수수를 넣어주시던 이웃들의 따뜻한 마음이 제 인생을 가장 부유하게 만들었습니다."
+                    }
+                ],
+                timeline: [
+                    { year: "1952", title: "출생 및 간호학교 진학", desc: "아픈 사람을 돕겠다는 일념으로 간호사의 길 선택" },
+                    { year: "1975", title: "농촌 보건진료소 부임", desc: "35년간 지역 주민의 건강과 모자 보건에 헌신" },
+                    { year: "2010", title: "국민건강증진 유공 표창", desc: "평생의 봉사 정신을 인정받아 보건복지부 표창 수상" },
+                    { year: "2026", title: "황재복 라이브러리 제5권 발간", desc: "이웃과 함께한 따뜻한 치유의 기록을 책으로 남김" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1977년 봄", title: "보건소 앞마당에서 예방접종 날", icon: "heart-pulse", story: "마을 아이들이 주사를 맞고 울음을 터뜨리자 사탕을 나눠주며 달래주던 정겨운 풍경입니다." },
+                    { theme: "가족과 함께", year: "1990년 가을", title: "마을 어르신 경로잔치 봉사", icon: "users", story: "동료들과 함께 음식을 장만해 어르신들의 건강을 살피고 노래자랑을 열었던 날입니다." },
+                    { theme: "인생의 황금기", year: "2026년 여름", title: "옛 마을 주민들과의 반가운 재회", icon: "smile", story: "그때 태어났던 아기들이 어느새 중년이 되어 찾아와 준 감동적인 자리였습니다." }
+                ],
+                voices: [
+                    {
+                        title: "자서전 서문 낭독 : 골목길마다 피어난 온기",
+                        duration: "02:10",
+                        transcript: "돌아보면 제가 누군가를 돌본 것이 아니라, 오히려 마을 분들의 따뜻한 정이 저를 살게 했습니다. 제 작은 손길이 누군가의 아픔을 덜어주었다면 그보다 더 큰 보람은 없습니다."
+                    },
+                    {
+                        title: "후배 의료인들에게 전하는 격려",
+                        duration: "01:40",
+                        transcript: "환자의 차트보다 먼저 환자의 눈을 바라보아 주세요. 진심이 담긴 따뜻한 말 한마디가 그 어떤 명약보다 큰 기적을 만들어 냅니다."
+                    },
+                    {
+                        title: "즐겨 부르던 노래 : 과수원길",
+                        duration: "01:18",
+                        transcript: "♪ 동구 밖 과수원길 아카시아꽃이 활짝 폈네... (왕진 가던 길목마다 흐드러지게 피어 있던 아카시아 향기를 떠올리며 부른 노래입니다.)"
+                    }
+                ]
+            },
+            {
+                id: 6,
+                vol: "제 6권",
+                name: "최동훈",
+                era: "1948년생 · 건축가 및 도시 설계가",
+                spineColor: "#4A5A78", // 클래식 슬레이트 인디고
+                catchphrase: "사람이 머물고 추억이 쌓이는 따뜻한 공간을 짓다.",
+                shortBio: "단순한 콘크리트 건물이 아닌, 사람들의 웃음과 이야기가 피어나는 도서관과 복지관, 보금자리를 설계해 온 인간 중심 건축가의 기록입니다.",
+                bookTitle: "자서전 : 마음의 집을 짓는 시간",
+                pages: [
+                    {
+                        title: "프롤로그 : 제도판 위에서 그린 사람들의 행복",
+                        content: "연필 끝에서 시작된 선 하나가 모여 누군가의 평생 보금자리가 된다는 사실은 언제나 경이롭습니다. 좋은 건축은 화려한 외관이 아니라 그 안에 사는 사람을 닮아야 합니다."
+                    },
+                    {
+                        title: "제1장 : 밤늦도록 불 켜진 설계사무소",
+                        content: "청년 시절, 도면 위에서 수많은 밤을 지새웠습니다. 햇살이 가장 잘 드는 창문의 위치를 고민하며 입주할 가족들의 행복한 얼굴을 떠올렸습니다."
+                    },
+                    {
+                        title: "제2장 : 이웃이 모이는 마을 도서관 설계",
+                        content: "제 인생에서 가장 보람 있었던 작업은 아이들과 어르신들이 함께 책을 읽을 수 있는 작은 마을 도서관을 설계한 일이었습니다."
+                    },
+                    {
+                        title: "에필로그 : 이제는 마음속에 지은 황재복 라이브러리",
+                        content: "평생 수많은 건물을 지었지만, 오늘 열 분의 친구와 함께 지은 이 '디지털 라이브러리'야말로 세월이 흘러도 무너지지 않을 가장 아름다운 건축물입니다."
+                    }
+                ],
+                timeline: [
+                    { year: "1948", title: "출생 및 건축공학 전공", desc: "공간과 인간의 조화에 깊은 관심을 품음" },
+                    { year: "1977", title: "건축사 자격 취득 및 사무소 개소", desc: "주거 공간 및 공공 문화시설 설계 다수 수행" },
+                    { year: "2003", title: "지역 공공건축상 대상 수상", desc: "자연 친화적 마을 도서관 설계로 호평" },
+                    { year: "2026", title: "황재복 라이브러리 제6권 등록", desc: "건축가의 시선으로 기록한 삶의 설계도를 완성" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1981년 가을", title: "첫 설계 작품 완공 현장에서", icon: "home", story: "도면 속에만 존재하던 건물이 실제로 완공되어 첫 삽을 뜬 감격을 안고 찍은 현장 사진입니다." },
+                    { theme: "가족과 함께", year: "1997년 여름", title: "가족과 함께한 유럽 건축 기행", icon: "compass", story: "오래된 성당과 광장을 거닐며 자녀들에게 역사와 공간의 이야기를 들려주던 여행의 기록입니다." },
+                    { theme: "인생의 황금기", year: "2026년 가을", title: "황재복 라이브러리 공간 기획 회의", icon: "users", story: "우리의 서재를 어떤 모습으로 꾸밀지 친구들과 머리를 맞대고 즐겁게 논의하던 날입니다." }
+                ],
+                voices: [
+                    {
+                        title: "자서전 서문 낭독 : 마음의 집을 짓는 시간",
+                        duration: "02:18",
+                        transcript: "건축은 공간의 예술이지만, 삶은 시간의 예술입니다. 우리가 살아온 시간들이 차곡차곡 쌓여 오늘 이렇게 근사한 서재라는 집을 완성했습니다."
+                    },
+                    {
+                        title: "자녀들에게 남기는 건축가의 조언",
+                        duration: "01:44",
+                        transcript: "인생이라는 집을 지을 때는 기초 공사가 가장 중요하단다. 보이지 않는 곳의 정직함과 성실함이 너희의 삶을 평생 든든하게 받쳐줄 것이다."
+                    },
+                    {
+                        title: "즐겨 부르던 노래 : 향수",
+                        duration: "01:32",
+                        transcript: "♪ 넓은 벌 동쪽 끝으로 옛이야기 지줄대는 실개천이 휘돌아 나가고... (어린 시절 고향 집 마당을 그리워하며 읊조린 애창곡입니다.)"
+                    }
+                ]
+            },
+            {
+                id: 7,
+                vol: "제 7권",
+                name: "강미숙",
+                era: "1953년생 · 아동문학가 및 동화 구연가",
+                spineColor: "#6B4E71", // 딥 플럼 라벤더
+                catchphrase: "아이들의 눈망울 속에 별빛을 심어주던 이야기 할머니의 마법.",
+                shortBio: "동심을 잃지 않는 순수한 시선으로 수십 편의 동화를 집필하고, 도서관과 복지관에서 아이들에게 꿈을 들려준 따뜻한 이야기꾼입니다.",
+                bookTitle: "자서전 : 은빛 머리카락의 동화나라",
+                pages: [
+                    {
+                        title: "프롤로그 : 옛날 옛적 호랑이 담배 피우던 시절에",
+                        content: "아이들 앞에 앉아 첫 문장을 꺼내면 초롱초롱한 눈망울들이 일제히 반짝입니다. 그 눈빛을 마주하는 순간, 저는 세상에서 가장 행복한 마법사가 됩니다."
+                    },
+                    {
+                        title: "제1장 : 다락방에서 만난 책들의 세계",
+                        content: "어린 시절 다락방에 쌓여 있던 헌 책들을 읽으며 상상의 날개를 키웠습니다. 책 속의 주인공들은 제 가장 다정한 친구들이었습니다."
+                    },
+                    {
+                        title: "제2장 : 동화 구연 봉사로 찾은 제2의 인생",
+                        content: "자녀들을 다 키운 뒤 시작한 동화 구연 봉사는 제 삶에 새로운 봄을 선물했습니다. 아이들의 웃음소리는 세월의 무게를 잊게 해주었습니다."
+                    },
+                    {
+                        title: "에필로그 : 어른이 되어서도 잃지 말아야 할 동심",
+                        content: "나이가 든다는 것은 늙어가는 것이 아니라, 더 많은 이야기를 품은 큰 나무가 되는 일입니다. 여러분의 마음속 동화책도 늘 따뜻하기를 바랍니다."
+                    }
+                ],
+                timeline: [
+                    { year: "1953", title: "출생 및 문학 소녀 시절", desc: "교내 백일장을 휩쓸며 글쓰기의 즐거움을 깨달음" },
+                    { year: "1988", title: "아동문학 신인상 등단", desc: "첫 창작 동화집 출간으로 독자들과 만남" },
+                    { year: "2008", title: "도서관 이야기 할머니 봉사 시작", desc: "15년 넘게 어린이들에게 동화 구연 재능 기부" },
+                    { year: "2026", title: "황재복 라이브러리 제7권 헌정", desc: "동심과 사랑으로 채운 삶의 동화책을 완성" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1989년 봄", title: "첫 동화책을 손에 들고", icon: "book", story: "내 이름이 적힌 첫 번째 동화책이 인쇄되어 나오던 날, 가슴 벅찬 설렘으로 찍은 사진입니다." },
+                    { theme: "가족과 함께", year: "2012년 겨울", title: "유치원 아이들과 함께한 구연 시간", icon: "sparkles", story: "직접 만든 손인형을 끼고 이야기를 들려주자 아이들이 까르르 웃음을 터뜨리던 순간입니다." },
+                    { theme: "인생의 황금기", year: "2026년 봄", title: "꽃밭에서 맞이한 화사한 봄날", icon: "flower", story: "동화 속 한 장면처럼 화사하게 웃으며 촬영한 리마인드 기념 포트레이트입니다." }
+                ],
+                voices: [
+                    {
+                        title: "자서전 서문 낭독 : 은빛 머리카락의 동화나라",
+                        duration: "02:12",
+                        transcript: "세상 모든 어른들도 한때는 어린아이였습니다. 바쁜 일상에 지칠 때마다 제 서재에 들러 잠시 어린 시절의 순수한 마음으로 쉬어가시길 바랍니다."
+                    },
+                    {
+                        title: "손주들에게 들려주는 창작 동화 한 편",
+                        duration: "02:30",
+                        transcript: "깊은 숲속 작은 다람쥐가 도토리 하나를 땅에 심었답니다. 비가 오고 눈이 내린 뒤, 그곳에서 숲을 지키는 커다란 참나무가 자라났지요..."
+                    },
+                    {
+                        title: "즐겨 부르던 동요 : 섬집 아기",
+                        duration: "01:10",
+                        transcript: "♪ 엄마가 섬 그늘에 굴 따러 가면, 아기가 혼자 남아 집을 보다가... (다정하고 포근한 음색으로 부른 동요 기록입니다.)"
+                    }
+                ]
+            },
+            {
+                id: 8,
+                vol: "제 8권",
+                name: "윤성호",
+                era: "1946년생 · 농촌 지도자 및 과수원 경영인",
+                spineColor: "#6E5A2A", // 올리브 브라운
+                catchphrase: "땅은 거짓말을 하지 않는다. 뿌린 만큼 거두는 정직한 삶의 이치.",
+                shortBio: "척박한 비탈밭을 일궈 마을의 자랑이 된 사과 과수원을 가꾸고, 이웃 농가와 함께 잘사는 마을을 만들어 온 농촌 지도자의 기록입니다.",
+                bookTitle: "자서전 : 사과꽃 피는 언덕에서",
+                pages: [
+                    { title: "프롤로그 : 새벽 안개 속의 과수원", content: "동이 트기 전 과수원에 나가면 안개 사이로 사과나무들이 하나둘 모습을 드러냅니다. 반세기 동안 그 풍경을 마주하며, 저는 기다림이야말로 농사의 전부라는 것을 배웠습니다.\n\n씨앗을 심고 꽃이 피고 열매가 익기까지, 서두르지 않는 마음이 결국 가장 달콤한 결실을 안겨 주었습니다." },
+                    { title: "제1장 : 돌밭을 일구던 스물넷의 여름", content: "아버지께 물려받은 땅은 돌투성이 비탈이었습니다. 이웃들은 고개를 저었지만, 저는 매일 지게로 돌을 져 나르며 한 뼘씩 밭을 넓혀 갔습니다.\n\n그해 여름 처음 심은 묘목 서른 그루가 오늘 이 과수원의 뿌리가 되었습니다." },
+                    { title: "제2장 : 함께 잘사는 마을을 꿈꾸며", content: "혼자 잘되는 농사는 오래가지 못한다는 것을 일찍 깨달았습니다. 이웃 농가들과 작목반을 꾸려 기술을 나누고, 공동 선별장을 지어 함께 판로를 열었습니다.\n\n마을 사람들이 모여 웃으며 사과 상자를 싣던 그 가을날이 제 인생의 가장 큰 보람입니다." },
+                    { title: "에필로그 : 나무는 천천히, 그러나 반드시 자란다", content: "이제 과수원은 아들 내외가 맡아 가꾸고 있습니다. 손주 녀석이 고사리손으로 사과를 따는 모습을 보며, 우리가 심은 것은 나무가 아니라 희망이었음을 깨닫습니다.\n\n이 기록이 땅을 일구는 모든 이들에게 작은 응원이 되기를 바랍니다." }
+                ],
+                timeline: [
+                    { year: "1946", title: "농가에서 출생", desc: "산골 마을에서 태어나 부모님을 도와 농사를 익힘" },
+                    { year: "1970", title: "사과 과수원 개척", desc: "돌밭을 일궈 첫 묘목 서른 그루를 심음" },
+                    { year: "1992", title: "친환경 과수 작목반 결성", desc: "이웃 농가 20곳과 함께 공동 선별장과 판로 개척" },
+                    { year: "2026", title: "황재복 라이브러리 제8권 등록", desc: "흙과 함께한 반세기의 기록을 자서전으로 남김" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1971년 봄", title: "첫 묘목을 심던 날", icon: "sprout", story: "아내와 단둘이 비탈밭에 서른 그루의 묘목을 심고 막걸리 한 잔으로 서로를 격려하던 날입니다." },
+                    { theme: "가족과 함께", year: "1988년 가을", title: "온 가족이 함께한 첫 대풍년", icon: "apple", story: "아이들까지 소매를 걷어붙이고 나선 수확 날, 마당 가득 쌓인 사과 상자 앞에서 찍은 사진입니다." },
+                    { theme: "인생의 황금기", year: "2026년 가을", title: "손주와 함께 딴 첫 사과", icon: "smile", story: "할아버지가 심은 나무에서 손주가 처음으로 사과를 따던 순간, 온 가족이 박수를 쳤습니다." }
+                ],
+                voices: [
+                    { title: "자서전 서문 낭독 : 사과꽃 피는 언덕에서", duration: "02:08", transcript: "저는 평생 흙을 만지며 살았습니다. 땅은 정직해서 정성을 들인 만큼 꼭 돌려주었습니다. 사람 사이의 일도 그와 다르지 않다는 것을 이 나이가 되어서야 알게 되었습니다." },
+                    { title: "아들 내외에게 전하는 농사 이야기", duration: "01:52", transcript: "나무는 주인의 발소리를 듣고 자란다는 말이 있단다. 바쁘더라도 하루 한 번은 과수원을 걸으며 나무들과 인사를 나누거라. 그것이 이 할애비가 남기는 가장 중요한 비법이다." },
+                    { title: "수확 날의 추억 이야기", duration: "01:26", transcript: "수확이 끝나는 날이면 마을 사람들이 모두 모여 잔치를 벌였습니다. 장구 소리에 맞춰 어깨춤을 추던 그 밤의 웃음소리가 아직도 귓가에 선합니다." }
+                ]
+            },
+            {
+                id: 9,
+                vol: "제 9권",
+                name: "한정숙",
+                era: "1951년생 · 음악 교사 및 합창단 지휘자",
+                spineColor: "#7B3A4E", // 버건디 와인
+                catchphrase: "서로 다른 목소리가 모여 하나의 화음이 될 때, 삶은 노래가 된다.",
+                shortBio: "35년간 음악 교사로 아이들에게 노래하는 기쁨을 가르치고, 은퇴 후에는 마을 어르신 합창단을 이끌며 화음의 가치를 전해 온 지휘자의 서재입니다.",
+                bookTitle: "자서전 : 오선지 위의 사계절",
+                pages: [
+                    { title: "프롤로그 : 낡은 풍금 앞에서", content: "학교 음악실 구석의 낡은 풍금은 제 인생의 첫 악기였습니다. 페달을 밟을 때마다 삐걱이던 소리마저 정겨웠던 그 시절, 저는 음악이 사람의 마음을 잇는 다리라는 것을 알았습니다.\n\n이 책은 제가 만난 수많은 목소리들에게 바치는 감사의 노래입니다." },
+                    { title: "제1장 : 음악실 창가의 아이들", content: "노래를 부끄러워하던 아이가 졸업식 날 독창을 하던 순간을 잊지 못합니다. 떨리는 목소리로 시작해 끝내 환하게 웃던 그 아이의 얼굴이 제가 교단에 선 이유였습니다." },
+                    { title: "제2장 : 은빛 합창단의 탄생", content: "은퇴 후 마을 회관에서 어르신 열두 분과 첫 연습을 시작했습니다. 악보를 읽지 못해도, 박자가 조금 어긋나도 괜찮았습니다. 함께 숨을 고르고 소리를 맞추는 그 시간 자체가 음악이었습니다." },
+                    { title: "에필로그 : 마지막 음표는 쉼표로", content: "음악에서 쉼표는 소리가 없는 것이 아니라 다음 소리를 준비하는 시간입니다. 인생의 쉼표 앞에 선 지금, 저는 여전히 다음 노래를 기다리고 있습니다." }
+                ],
+                timeline: [
+                    { year: "1951", title: "출생 및 음악 대학 진학", desc: "교회 성가대에서 노래를 시작해 성악을 전공함" },
+                    { year: "1976", title: "중학교 음악 교사 부임", desc: "35년간 합창부를 지도하며 전국 대회 입상" },
+                    { year: "2012", title: "은빛 어르신 합창단 창단", desc: "마을 어르신들과 함께 지역 축제 무대에 오름" },
+                    { year: "2026", title: "황재복 라이브러리 제9권 헌정", desc: "노래와 함께한 삶의 악보를 자서전으로 엮음" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1979년 겨울", title: "합창부 첫 대회 출전", icon: "music", story: "교복 차림의 아이들과 무대 뒤에서 손을 맞잡고 기도하던 순간, 모두의 손이 떨리고 있었습니다." },
+                    { theme: "가족과 함께", year: "1994년 봄", title: "딸의 피아노 첫 발표회", icon: "heart", story: "엄마의 풍금 소리를 듣고 자란 딸이 처음으로 무대에서 피아노를 연주하던 감격스러운 날입니다." },
+                    { theme: "인생의 황금기", year: "2025년 가을", title: "은빛 합창단 축제 무대", icon: "users", story: "평균 나이 일흔여덟의 단원들이 고운 한복을 입고 무대에 올라 큰 박수를 받았던 날입니다." }
+                ],
+                voices: [
+                    { title: "자서전 서문 낭독 : 오선지 위의 사계절", duration: "02:14", transcript: "노래는 혼자 부를 때보다 함께 부를 때 더 아름답습니다. 제 인생도 그랬습니다. 곁에서 화음을 맞춰 준 가족과 친구들 덕분에 이렇게 한 권의 악보를 완성할 수 있었습니다." },
+                    { title: "합창단원들에게 보내는 감사 인사", duration: "01:38", transcript: "여러분, 박자가 틀려도 음이 흔들려도 괜찮습니다. 우리가 함께 숨을 쉬고 서로의 소리에 귀를 기울이는 그 순간, 이미 가장 아름다운 노래를 부르고 있는 것입니다." },
+                    { title: "음악실의 추억 이야기", duration: "01:22", transcript: "비 오는 날이면 아이들과 음악실 창문을 열고 빗소리에 맞춰 발장단을 쳤습니다. 세상의 모든 소리가 음악이 될 수 있다는 것을 아이들이 먼저 알려 주었지요." }
+                ]
+            },
+            {
+                id: 10,
+                vol: "제 10권",
+                name: "오태식",
+                era: "1949년생 · 집배원 및 마을 사진가",
+                spineColor: "#3F5E4A", // 모스 그린
+                catchphrase: "한 통의 편지에 담긴 마음을 전하며, 골목의 하루를 사진에 담다.",
+                shortBio: "40년간 우편 가방을 메고 골목골목을 누비며 소식을 전하고, 틈틈이 찍은 사진으로 마을의 반세기를 기록해 온 집배원 사진가의 서재입니다.",
+                bookTitle: "자서전 : 편지 가방에 담긴 반세기",
+                pages: [
+                    { title: "프롤로그 : 빨간 자전거의 기억", content: "제 첫 근무 수단은 짐받이에 우편 가방을 묶은 빨간 자전거였습니다. 비포장 고갯길을 넘을 때마다 숨이 턱까지 찼지만, 편지를 받아 드는 이웃들의 얼굴을 떠올리면 페달이 가벼워졌습니다." },
+                    { title: "제1장 : 군대 간 아들의 첫 편지", content: "어느 겨울, 한 어머니께 군대 간 아들의 첫 편지를 전해 드렸습니다. 글을 읽지 못하시던 어머니를 위해 마루에 앉아 편지를 소리 내어 읽어 드렸고, 우리는 함께 울었습니다.\n\n그날 이후 저는 편지가 아니라 마음을 배달한다고 생각하며 일했습니다." },
+                    { title: "제2장 : 카메라를 든 집배원", content: "배달 길에 마주치는 풍경이 너무 아름다워 월급을 모아 중고 카메라를 샀습니다. 골목에서 뛰노는 아이들, 장날의 북적임, 저물녘의 굴뚝 연기까지 마을의 하루하루가 필름에 담겼습니다." },
+                    { title: "에필로그 : 사진첩을 덮으며", content: "40년간 찍은 사진이 어느새 수천 장이 되었습니다. 사진 속 아이들은 부모가 되었고, 골목은 많이 변했습니다. 하지만 그 안에 담긴 마음만큼은 이 서재에 영원히 머물 것입니다." }
+                ],
+                timeline: [
+                    { year: "1949", title: "출생 및 성장", desc: "작은 읍내에서 태어나 우체국 앞 골목에서 자람" },
+                    { year: "1972", title: "집배원 첫 발령", desc: "빨간 자전거로 산골 마을 열두 곳을 담당" },
+                    { year: "2001", title: "마을 사진전 개최", desc: "30년간 찍은 마을 사진으로 첫 전시를 엶" },
+                    { year: "2026", title: "황재복 라이브러리 제10권 완간", desc: "편지와 사진으로 엮은 마을의 반세기를 기록" }
+                ],
+                photos: [
+                    { theme: "청춘의 기록", year: "1973년 가을", title: "빨간 자전거와 우편 가방", icon: "mail", story: "첫 월급으로 장만한 새 우편 가방을 메고 우체국 앞에서 동료가 찍어 준 사진입니다." },
+                    { theme: "가족과 함께", year: "1986년 여름", title: "아이들과 떠난 첫 출사", icon: "camera", story: "휴일에 아이들을 데리고 강가에 나가 카메라 다루는 법을 가르쳐 주던 날입니다." },
+                    { theme: "인생의 황금기", year: "2026년 봄", title: "사진 속 아이들과의 재회", icon: "sun", story: "40년 전 골목에서 찍었던 아이들이 중년이 되어 같은 자리에서 다시 사진을 찍었습니다." }
+                ],
+                voices: [
+                    { title: "자서전 서문 낭독 : 편지 가방에 담긴 반세기", duration: "02:02", transcript: "편지 한 통에는 기다림과 그리움, 그리고 사랑이 담겨 있었습니다. 그 마음들을 전하는 일을 할 수 있었던 것은 제 인생의 큰 복이었습니다." },
+                    { title: "손녀에게 보내는 목소리 편지", duration: "01:47", transcript: "우리 손녀야, 요즘은 손편지를 쓰는 사람이 드물지만 할아버지는 네가 가끔 마음을 꾹꾹 눌러 담은 편지를 써 보았으면 좋겠구나. 글씨에는 목소리보다 오래 남는 온기가 있단다." },
+                    { title: "사진 한 장에 얽힌 이야기", duration: "01:29", transcript: "장날 아침, 할머니 한 분이 손주에게 줄 사탕을 고르던 뒷모습을 찍었습니다. 그 사진을 보신 가족들이 이제는 그 할머니의 유일한 사진이라며 고마워하셨지요." }
+                ]
+            }
+        ];
+
+        /* ═════════════════ 유틸 ═════════════════ */
+        const $ = id => document.getElementById(id);
+        const ICON_ALIAS = { home: 'house' };
+        const ic = (n, c = 'w-5 h-5') => `<i data-lucide="${ICON_ALIAS[n] || n}" class="${c}"></i>`;
+        const refreshIcons = () => { if (window.lucide) lucide.createIcons(); };
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const pad = n => String(n).padStart(2, '0');
+        const toSec = s => { const [m, x] = s.split(':').map(Number); return m * 60 + x; };
+        const fmt = t => `${pad(Math.floor(t / 60))}:${pad(Math.floor(t % 60))}`;
+        const sentences = txt => txt.replace(/\n+/g, ' ').split(/(?<=[.!?…])\s+/).map(s => s.trim()).filter(Boolean);
+        const store = {
+            get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+            set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } }
+        };
+        function shade(hex, p) {
+            const n = parseInt(hex.slice(1), 16); let r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+            const t = p < 0 ? 0 : 255, a = Math.abs(p) / 100;
+            r = Math.round((t - r) * a + r); g = Math.round((t - g) * a + g); b = Math.round((t - b) * a + b);
+            return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+        const job = m => (m.era.split('·')[1] || '').trim();
+        const born = m => m.era.split('·')[0].trim();
+
+        let revealObserver;
+        function observeReveals() {
+            const els = document.querySelectorAll('.reveal:not(.in)');
+            if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in')); return; }
+            if (!revealObserver) revealObserver = new IntersectionObserver(entries => {
+                entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealObserver.unobserve(en.target); } });
+            }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
+            els.forEach(e => revealObserver.observe(e));
+        }
+        function scrollToId(id) { $(id).scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+        let toastTimer;
+        function toast(msg) {
+            $('toastText').textContent = msg; $('toast').classList.add('show');
+            clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('show'), 2600);
+        }
+
+        /* ═════════════════ 로비 ═════════════════ */
+        function renderHeroShelf() {
+            const h = [88, 97, 82, 93, 86, 100, 80, 91, 95, 84];
+            $('heroShelf').innerHTML = `<div class="bookend self-stretch mt-auto" style="height:55%"></div>` +
+                libraryMembers.map((m, i) => `
+                <button class="spine${i === 9 ? ' lean' : ''}" style="--c:${m.spineColor};height:${h[i]}%" onclick="openStudy(${m.id})" aria-label="${m.name} 님의 서재 열기" title="${m.vol} · ${m.name}">
+                    <span class="band" style="top:14px"></span>
+                    <span class="spine-no">${pad(m.id)}</span>
+                    <span class="spine-title">${m.name}</span>
+                    <span class="band" style="bottom:20px"></span>
+                </button>`).join('') +
+                `<div class="bookend self-stretch mt-auto" style="height:55%"></div>`;
+        }
+
+        function renderMembersGrid() {
+            $('membersGrid').innerHTML = libraryMembers.map((m, i) => `
+                <button onclick="openStudy(${m.id})" class="book-card reveal group text-left" style="transition-delay:${(i % 5) * 80}ms" aria-label="${m.name} 님의 서재 입장">
+                    <div class="book"><div class="book-inner">
+                        <div class="book-pages"></div>
+                        <div class="book-cover" style="--c:${m.spineColor}">
+                            <div class="cover-frame"></div>
+                            <div class="relative h-full flex flex-col items-center justify-between text-center pt-6 pb-5 pl-6 pr-4">
+                                <span class="text-[9px] sm:text-[10px] tracking-[.35em] font-bold text-goldLight/85">VOL. ${pad(m.id)}</span>
+                                <div class="flex flex-col items-center">
+                                    <div class="monogram">${m.name[0]}</div>
+                                    <div class="font-serif text-xl sm:text-2xl font-bold mt-3 tracking-wide">${m.name}</div>
+                                    <div class="w-6 h-px bg-goldLight/60 my-2"></div>
+                                    <div class="text-[10px] sm:text-[11px] text-[#F6E7C4]/75 leading-snug px-1">${job(m)}</div>
+                                </div>
+                                <div class="text-[9px] sm:text-[10px] text-goldLight/70 tracking-[.2em]">${born(m)}</div>
+                            </div>
+                        </div>
+                    </div></div>
+                    <div class="mt-6 pr-3">
+                        <p class="font-serif text-[15px] font-bold text-ink leading-snug">${m.bookTitle.replace('자서전 : ', '')}</p>
+                        <p class="text-[13px] text-muted mt-1.5 leading-relaxed line-clamp-2">${m.catchphrase}</p>
+                        <span class="inline-flex items-center gap-1 mt-3 text-[13px] font-bold text-terracotta group-hover:gap-2 transition-all">서재 입장 ${ic('arrow-right', 'w-4 h-4')}</span>
+                    </div>
+                </button>`).join('');
+        }
+
+        function populateSelects() {
+            const opts = libraryMembers.map(m => `<option value="${m.id}">${m.vol} · ${m.name} 님의 서재</option>`).join('');
+            $('quickSwitcher').insertAdjacentHTML('beforeend', opts);
+            $('guestTarget').insertAdjacentHTML('beforeend', libraryMembers.map(m => `<option value="${m.name}">${m.vol} · ${m.name} 님께</option>`).join(''));
+        }
+        function handleQuickSwitch(v) { v === 'lobby' ? navigateToLobby() : openStudy(+v); }
+
+        /* ═════════════════ 라우팅 ═════════════════ */
+        let cur = null;
+        function openStudy(id) {
+            const m = libraryMembers.find(x => x.id === +id);
+            if (!m) return;
+            try { if (location.hash !== '#study-' + id) history.pushState(null, '', '#study-' + id); } catch (e) { }
+            stopMedia(); showStudy(m);
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+        function navigateToLobby() {
+            try { if (location.hash) history.pushState(null, '', location.pathname + location.search); } catch (e) { }
+            stopMedia(); showLobby();
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+        function showLobby() {
+            cur = null;
+            $('studyView').classList.add('hidden');
+            $('lobbyView').classList.remove('hidden');
+            $('quickSwitcher').value = 'lobby';
+            document.title = '황재복 라이브러리 | 시간이 머무는 따뜻한 서재';
+        }
+        function goSibling(d) {
+            const i = libraryMembers.indexOf(cur);
+            openStudy(libraryMembers[(i + d + libraryMembers.length) % libraryMembers.length].id);
+        }
+        function route() {
+            stopMedia();
+            const hit = location.hash.match(/^#study-(\d+)$/);
+            const m = hit && libraryMembers.find(x => x.id === +hit[1]);
+            if (m) showStudy(m); else showLobby();
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+        window.addEventListener('hashchange', route);
+        window.addEventListener('popstate', route);
+
+        /* ═════════════════ 개인 서재 ═════════════════ */
+        function portraitSVG(m) {
+            const c = m.spineColor;
+            return `<svg viewBox="0 0 160 200" class="w-full h-full" role="img" aria-label="${m.name} 초상 액자">
+                <defs>
+                    <radialGradient id="pg${m.id}" cx="50%" cy="30%" r="80%"><stop offset="0" stop-color="${shade(c, 35)}"/><stop offset=".55" stop-color="${c}"/><stop offset="1" stop-color="${shade(c, -55)}"/></radialGradient>
+                    <pattern id="pp${m.id}" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 6L6 0" stroke="#000" stroke-opacity=".06"/></pattern>
+                </defs>
+                <rect width="160" height="200" fill="url(#pg${m.id})"/><rect width="160" height="200" fill="url(#pp${m.id})"/>
+                <ellipse cx="80" cy="100" rx="64" ry="82" fill="none" stroke="#E9CF95" stroke-width="1.4" opacity=".85"/>
+                <ellipse cx="80" cy="100" rx="58" ry="76" fill="none" stroke="#E9CF95" stroke-width=".6" opacity=".45"/>
+                <text x="80" y="62" text-anchor="middle" font-family="Noto Serif KR" font-size="8" letter-spacing="3" fill="#E9CF95" opacity=".8">VOL. ${pad(m.id)}</text>
+                <text x="80" y="122" text-anchor="middle" font-family="Noto Serif KR" font-weight="900" font-size="60" fill="#F5E0A8">${m.name[0]}</text>
+                <text x="80" y="152" text-anchor="middle" font-family="Noto Serif KR" font-size="11" letter-spacing="5" fill="#E9CF95">${m.name}</text>
+            </svg>`;
+        }
+
+        function showStudy(m) {
+            cur = m;
+            const root = document.documentElement.style;
+            root.setProperty('--member', m.spineColor);
+            root.setProperty('--member-light', shade(m.spineColor, 45));
+            root.setProperty('--member-dark', shade(m.spineColor, -45));
+
+            $('studyAvatarBox').innerHTML = portraitSVG(m);
+            $('studyBookVol').textContent = m.vol;
+            $('studyEra').innerHTML = `${ic('feather', 'w-4 h-4')} ${esc(m.era)}`;
+            $('studyName').textContent = m.name;
+            $('studyMotto').textContent = `“${m.catchphrase}”`;
+            $('studyShortBio').textContent = m.shortBio;
+            const i = libraryMembers.indexOf(m), n = libraryMembers.length;
+            $('prevName').textContent = libraryMembers[(i - 1 + n) % n].name;
+            $('nextName').textContent = libraryMembers[(i + 1) % n].name;
+            $('quickSwitcher').value = String(m.id);
+            document.title = `${m.name} 님의 서재 | 황재복 라이브러리`;
+
+            ebookPage = 0; renderEbook(false);
+            renderTimeline();
+            renderPhotos();
+            renderCompare();
+            renderVideoChapters(); selectVideoChapter(0);
+            renderVoiceTracks(); selectVoiceTrack(0);
+            switchStudyTab('autobiography', true);
+
+            $('lobbyView').classList.add('hidden');
+            $('studyView').classList.remove('hidden');
+            refreshIcons(); observeReveals();
+            requestAnimationFrame(sizeCompare);
+        }
+
+        let currentTab = 'autobiography';
+        function switchStudyTab(tab, noScroll) {
+            if (tab !== currentTab) stopMedia();
+            currentTab = tab;
+            document.querySelectorAll('.study-tab-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.study-tab').forEach(b => b.classList.remove('active'));
+            $('content-' + tab).classList.remove('hidden');
+            $('tab-' + tab).classList.add('active');
+            if (tab === 'photos') requestAnimationFrame(sizeCompare);
+            const top = $('studyView').querySelector('.sticky').getBoundingClientRect().top + window.scrollY - 80;
+            if (!noScroll && window.scrollY > top) window.scrollTo({ top, behavior: 'smooth' });
+        }
+
+        /* ── E-Book ── */
+        let ebookPage = 0;
+        function renderEbook(anim = true) {
+            const pages = cur.pages, n = pages.length, p = pages[ebookPage];
+            const parts = p.title.split(' : ');
+            const label = parts.length > 1 ? parts[0] : '';
+            const title = parts.length > 1 ? parts.slice(1).join(' : ') : parts[0];
+            $('ebookTitle').textContent = cur.bookTitle;
+            $('ebookChapterNum').textContent = ebookPage === 0 ? 'Prologue' : ebookPage === n - 1 ? 'Epilogue' : 'Chapter ' + pad(ebookPage);
+            $('ebookChapterLabel').textContent = label;
+            $('ebookChapterTitle').textContent = title;
+            const ss = sentences(p.content);
+            $('ebookChapterQuote').textContent = `“${ss[ss.length - 1]}”`;
+            $('ebookChapterBody').textContent = p.content;
+            $('ebookAuthorSign').textContent = cur.name + ' 씀';
+            $('ebookPageIndicator').textContent = `${ebookPage + 1} / ${n} 장`;
+            $('ebookLeftPageNum').textContent = `— ${ebookPage * 2 + 1} —`;
+            $('ebookRightPageNum').textContent = `— ${ebookPage * 2 + 2} —`;
+            $('btnPrevPage').disabled = ebookPage === 0;
+            $('btnNextPage').disabled = ebookPage === n - 1;
+            $('ebookDots').innerHTML = pages.map((_, i) => `<button class="page-dot${i === ebookPage ? ' on' : ''}" onclick="goEbookPage(${i})" aria-label="${i + 1}장으로 이동"></button>`).join('');
+            if (anim) { const v = $('ebookViewer'); v.classList.remove('page-flip-anim'); void v.offsetWidth; v.classList.add('page-flip-anim'); }
+        }
+        function goEbookPage(i) { if (i === ebookPage) return; ebookPage = i; renderEbook(); }
+        function prevEbookPage() { if (ebookPage > 0) goEbookPage(ebookPage - 1); }
+        function nextEbookPage() { if (ebookPage < cur.pages.length - 1) goEbookPage(ebookPage + 1); }
+        document.addEventListener('keydown', e => {
+            if (!cur || currentTab !== 'autobiography' || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+            if (e.key === 'ArrowLeft') prevEbookPage();
+            if (e.key === 'ArrowRight') nextEbookPage();
+        });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closePhotoModal(); });
+
+        /* ── 연대기 ── */
+        function renderTimeline() {
+            const t = cur.timeline;
+            $('timelineContainer').innerHTML = `<div class="hidden lg:block absolute left-0 right-0 top-[9px] h-px bg-gradient-to-r from-gold/0 via-gold/60 to-gold/0"></div>` +
+                t.map((x, i) => `
+                <div class="relative reveal pl-8 lg:pl-0 border-l lg:border-l-0 border-gold/40" style="transition-delay:${i * 90}ms">
+                    <span class="absolute -left-[9px] lg:left-0 top-0 w-[18px] h-[18px] rounded-full border-2 border-gold ${i === t.length - 1 ? 'bg-gold' : 'bg-cream'} shadow"></span>
+                    <div class="lg:pt-9">
+                        <div class="font-serif text-4xl sm:text-5xl font-black text-member leading-none tracking-tight">${x.year}</div>
+                        <h4 class="mt-3 font-bold text-ink text-lg leading-snug">${x.title}</h4>
+                        <p class="text-muted mt-1.5 leading-relaxed text-[15px]">${x.desc}</p>
+                    </div>
+                </div>`).join('');
+        }
+
+        /* ── 사진관 ── */
+        function photoBg(i) {
+            const c = cur.spineColor;
+            return [
+                `background: radial-gradient(90% 90% at 50% 35%, #8A7660, #4A3D30 60%, #2A221A); filter: sepia(.35);`,
+                `background: radial-gradient(90% 90% at 50% 30%, ${shade(c, 45)}, ${c} 60%, ${shade(c, -40)});`,
+                `background: radial-gradient(90% 90% at 50% 30%, #FFF2DA, #F0C896 55%, #C9874E);`
+            ][i % 3];
+        }
+        function renderPhotos() {
+            $('photoCardsGrid').innerHTML = cur.photos.map((p, i) => `
+                <button onclick="openPhoto(${i})" class="polaroid text-left" style="--r:${[-2.4, 1.8, -1.2][i]}deg">
+                    <span class="tape"></span>
+                    <div class="photo-visual" style="${photoBg(i)}">
+                        <div class="w-20 h-20 rounded-full grid place-items-center ${i === 2 ? 'bg-white/60 text-terracottaDark' : 'bg-white/10 text-paper/90'} ring-1 ring-white/30 backdrop-blur-sm">${ic(p.icon, 'w-10 h-10')}</div>
+                        <span class="absolute bottom-3 right-3 z-10 text-[10px] tracking-[.2em] font-bold ${i === 2 ? 'text-ink/50' : 'text-paper/60'}">NO. ${pad(i + 1)}</span>
+                    </div>
+                    <div class="pt-4 px-1">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] font-bold tracking-widest text-member">${p.theme}</span>
+                            <span class="font-hand text-xl text-muted leading-none">${p.year}</span>
+                        </div>
+                        <p class="font-serif font-bold text-ink mt-1.5 leading-snug text-[17px]">${p.title}</p>
+                        <span class="inline-flex items-center gap-1 text-xs text-muted mt-2">${ic('book-open', 'w-3.5 h-3.5')} 에피소드 읽기</span>
+                    </div>
+                </button>`).join('');
+        }
+        function openPhoto(i) {
+            const p = cur.photos[i];
+            $('modalPhotoVisual').setAttribute('style', photoBg(i) + 'aspect-ratio:16/9');
+            $('modalPhotoVisual').innerHTML = `<div class="w-24 h-24 rounded-full grid place-items-center ${i === 2 ? 'bg-white/60 text-terracottaDark' : 'bg-white/10 text-paper'} ring-1 ring-white/30">${ic(p.icon, 'w-12 h-12')}</div>`;
+            $('modalPhotoTheme').textContent = p.theme;
+            $('modalPhotoYear').textContent = p.year;
+            $('modalPhotoTitle').textContent = p.title;
+            $('modalPhotoStory').textContent = p.story;
+            $('photoModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            refreshIcons();
+        }
+        function closePhotoModal() { $('photoModal').classList.add('hidden'); document.body.style.overflow = ''; }
+
+        /* ── 비교 슬라이더 ── */
+        function renderCompare() {
+            const a = cur.photos[0], b = cur.photos[cur.photos.length - 1];
+            $('compareBeforeYear').textContent = `젊은 시절의 기록 · ${a.year}`;
+            $('compareBeforeText').textContent = a.title;
+            $('compareBeforeSub').textContent = a.story;
+            $('compareAfterYear').textContent = `오늘의 리마인드 · ${b.year}`;
+            $('compareAfterText').textContent = b.title;
+            $('compareAfterSub').textContent = b.story;
+            setCompare(50);
+        }
+        function sizeCompare() { const w = $('compareBox').offsetWidth; if (w) $('compareBeforeInner').style.width = w + 'px'; }
+        function setCompare(p) {
+            p = Math.max(0, Math.min(100, p));
+            $('compareOverlay').style.width = p + '%';
+            $('compareHandle').style.left = p + '%';
+            $('compareHandle').setAttribute('aria-valuenow', Math.round(p));
+        }
+        (function initCompare() {
+            const box = $('compareBox'); let drag = false;
+            const move = e => { const r = box.getBoundingClientRect(); setCompare((e.clientX - r.left) / r.width * 100); };
+            box.addEventListener('pointerdown', e => { drag = true; box.setPointerCapture(e.pointerId); move(e); });
+            box.addEventListener('pointermove', e => { if (drag) move(e); });
+            ['pointerup', 'pointercancel'].forEach(ev => box.addEventListener(ev, () => drag = false));
+            $('compareHandle').addEventListener('keydown', e => {
+                const v = parseFloat($('compareHandle').style.left) || 50;
+                if (e.key === 'ArrowLeft') { setCompare(v - 5); e.preventDefault(); }
+                if (e.key === 'ArrowRight') { setCompare(v + 5); e.preventDefault(); }
+            });
+            window.addEventListener('resize', sizeCompare);
+        })();
+
+        /* ── 동영상 ── */
+        const vid = { playing: false, t: 0, dur: 760, timer: null, ch: 0, subs: [] };
+        function videoClips(m) {
+            return [
+                { title: '인생 다큐멘터리 본편', desc: '자서전 출간 기념 특별 인터뷰', dur: '12:40', icon: 'clapperboard', caption: m.catchphrase },
+                { title: `${m.timeline[1].year} · ${m.timeline[1].title}`, desc: '그 시절을 회고하는 인터뷰 클립', dur: '04:25', icon: 'history', caption: m.timeline[1].desc },
+                { title: '가족이 전하는 축하 영상', desc: '자녀와 손주들의 깜짝 메시지', dur: '03:10', icon: 'heart-handshake', caption: '사랑합니다, 그리고 고맙습니다' }
+            ];
+        }
+        function renderVideoChapters() {
+            $('videoMainTitle').textContent = `인생 다큐멘터리 : ${cur.bookTitle.replace('자서전 : ', '')}`;
+            $('videoChaptersGrid').innerHTML = videoClips(cur).map((c, i) => `
+                <button onclick="selectVideoChapter(${i})" id="clip-${i}" class="clip-btn text-left rounded-2xl border border-[#E6DAC3] bg-cream hover:border-gold p-4 flex items-start gap-3 transition-colors">
+                    <span class="w-11 h-11 rounded-xl bg-ink text-goldLight grid place-items-center shrink-0">${ic(c.icon, 'w-5 h-5')}</span>
+                    <span class="min-w-0">
+                        <span class="block font-bold text-ink leading-snug">${c.title}</span>
+                        <span class="block text-sm text-muted mt-0.5">${c.desc}</span>
+                        <span class="inline-block text-xs font-mono text-member mt-1.5">${c.dur}</span>
+                    </span>
+                </button>`).join('');
+        }
+        function selectVideoChapter(i) {
+            pauseVideo(); vid.ch = i;
+            const c = videoClips(cur)[i];
+            vid.dur = toSec(c.dur); vid.t = 0;
+            vid.subs = i === 2 ? ['할아버지, 할머니 사랑해요!', '건강하게 오래오래 함께해 주세요.', '당신의 삶이 저희의 자랑입니다.', '사랑합니다, 그리고 고맙습니다.'] : sentences(cur.pages.map(p => p.content).join(' '));
+            $('videoStatusBadge').textContent = `${c.title} · ${c.dur.replace(':', '분 ')}초`;
+            $('videoScreenCaption').textContent = `“${c.caption}”`;
+            document.querySelectorAll('.clip-btn').forEach((b, k) => b.classList.toggle('on', k === i));
+            updateVideoUI();
+        }
+        function updateVideoUI() {
+            $('videoTimeText').textContent = `${fmt(vid.t)} / ${fmt(vid.dur)}`;
+            $('videoProgressBar').style.width = (vid.t / vid.dur * 100) + '%';
+            $('videoScreen').classList.toggle('playing', vid.playing);
+            $('videoLiveTag').classList.toggle('hidden', !vid.playing);
+            $('videoLiveTag').classList.toggle('flex', vid.playing);
+            const sub = $('videoSubtitle');
+            if (vid.playing && vid.subs.length) { sub.textContent = vid.subs[Math.floor(vid.t / 5) % vid.subs.length]; sub.style.opacity = 1; }
+            else sub.style.opacity = 0;
+        }
+        function setVideoBtn() { $('videoPlayBtn').innerHTML = ic(vid.playing ? 'pause' : 'play', 'w-5 h-5' + (vid.playing ? '' : ' ml-0.5')); refreshIcons(); }
+        function playVideo() {
+            if (vid.t >= vid.dur) vid.t = 0;
+            vid.playing = true; setVideoBtn();
+            vid.timer = setInterval(() => { vid.t = Math.min(vid.dur, vid.t + .25); if (vid.t >= vid.dur) pauseVideo(); updateVideoUI(); }, 250);
+            updateVideoUI();
+        }
+        function pauseVideo() { vid.playing = false; clearInterval(vid.timer); setVideoBtn(); updateVideoUI(); }
+        function toggleVideoPlay() { vid.playing ? pauseVideo() : playVideo(); }
+        function seekVideo(e) { const r = e.currentTarget.getBoundingClientRect(); vid.t = (e.clientX - r.left) / r.width * vid.dur; updateVideoUI(); }
+
+        /* ── 목소리 ── */
+        const aud = { playing: false, t: 0, dur: 135, timer: null, tr: 0, lines: [] };
+        function renderVoiceTracks() {
+            $('vinylName').textContent = cur.name;
+            $('voiceTracksList').innerHTML = cur.voices.map((v, i) => `
+                <button onclick="selectVoiceTrack(${i})" id="track-${i}" class="track-btn text-left rounded-2xl border border-paper/10 hover:border-goldLight/40 px-4 py-3.5 flex items-center gap-3 transition-colors">
+                    <span class="font-serif text-2xl font-bold text-goldLight/70 w-8 shrink-0">${pad(i + 1)}</span>
+                    <span class="min-w-0">
+                        <span class="block text-sm font-bold text-paper leading-snug">${v.title}</span>
+                        <span class="block text-xs font-mono text-paper/45 mt-0.5">${v.duration}</span>
+                    </span>
+                </button>`).join('');
+        }
+        function selectVoiceTrack(i) {
+            pauseAudio(); aud.tr = i;
+            const v = cur.voices[i];
+            aud.dur = toSec(v.duration); aud.t = 0;
+            aud.lines = sentences(v.transcript);
+            $('voiceTrackBadge').textContent = `TRACK ${pad(i + 1)}`;
+            $('voiceTrackTitle').textContent = v.title;
+            $('voiceTrackMeta').textContent = `${cur.name} 님 육성 · 녹음 2026년 10월 · ${v.duration}`;
+            $('audioTotalTime').textContent = v.duration;
+            $('voiceTranscriptText').innerHTML = aud.lines.map((l, k) => `<span class="t-line" data-i="${k}">${esc(l)}</span>`).join(' ');
+            document.querySelectorAll('.track-btn').forEach((b, k) => b.classList.toggle('on', k === i));
+            updateAudioUI();
+        }
+        function updateAudioUI() {
+            $('audioCurrentTime').textContent = fmt(aud.t);
+            $('audioProgressBar').style.width = (aud.t / aud.dur * 100) + '%';
+            $('vinylDisc').classList.toggle('paused', !aud.playing);
+            $('tonearm').classList.toggle('on', aud.playing);
+            $('eqBars').classList.toggle('on', aud.playing);
+            const started = aud.playing || aud.t > 0;
+            $('voiceTranscriptText').classList.toggle('live', started);
+            const active = started ? Math.min(aud.lines.length - 1, Math.floor(aud.t / aud.dur * aud.lines.length)) : -1;
+            document.querySelectorAll('#voiceTranscriptText .t-line').forEach((s, k) => {
+                s.classList.toggle('active', k === active);
+                s.classList.toggle('done', started && k < active);
+            });
+        }
+        function setAudioBtn() {
+            $('audioPlayBtn').innerHTML = `${ic(aud.playing ? 'pause' : 'play', 'w-5 h-5')}<span>${aud.playing ? '잠시 멈춤' : (aud.t > 0 ? '이어 듣기' : '목소리 듣기')}</span>`;
+            refreshIcons();
+        }
+        function playAudio() {
+            if (aud.t >= aud.dur) aud.t = 0;
+            aud.playing = true; setAudioBtn();
+            aud.timer = setInterval(() => {
+                aud.t = Math.min(aud.dur, aud.t + .25);
+                if (aud.t >= aud.dur) { pauseAudio(); toast('낭독이 끝났습니다'); }
+                updateAudioUI();
+            }, 250);
+            updateAudioUI();
+        }
+        function pauseAudio() { aud.playing = false; clearInterval(aud.timer); setAudioBtn(); updateAudioUI(); }
+        function toggleAudioPlay() { aud.playing ? pauseAudio() : playAudio(); }
+        function seekAudio(e) { const r = e.currentTarget.getBoundingClientRect(); aud.t = (e.clientX - r.left) / r.width * aud.dur; setAudioBtn(); updateAudioUI(); }
+
+        function stopMedia() { if (vid.playing) pauseVideo(); if (aud.playing) pauseAudio(); }
+
+        /* ═════════════════ 방명록 ═════════════════ */
+        const GB_KEY = 'hjb-guestbook-v2';
+        const SAMPLE_GB = [
+            { name: '황민호 (아들)', target: '황재복', msg: '아버지의 일기장 속 이야기를 이렇게 책으로 읽으니 눈시울이 붉어집니다. 늘 존경하고 사랑합니다.', date: '2026.10.24' },
+            { name: '박지은 (제자)', target: '열 분 모두', msg: '선생님들의 삶이 곧 우리 시대의 역사입니다. 귀한 기록을 남겨 주셔서 진심으로 감사드립니다.', date: '2026.10.21' },
+            { name: '이서연 (손녀)', target: '이영희', msg: '할머니가 가르쳐 주신 첫 바느질, 평생 잊지 않을게요. 할머니 목소리를 언제든 들을 수 있어서 행복해요!', date: '2026.10.18' },
+            { name: '박민준 (손자)', target: '박민수', msg: '할아버지의 바다 이야기를 들으니 저도 넓은 세상을 항해하고 싶어졌어요. 순풍을 빌어 주세요!', date: '2026.10.15' }
+        ];
+        let guestbook = store.get(GB_KEY, null) || SAMPLE_GB.slice();
+        function renderGuestbook() {
+            $('guestCount').textContent = guestbook.length;
+            $('guestbookList').innerHTML = guestbook.map((g, i) => {
+                const m = libraryMembers.find(x => x.name === g.target);
+                const c = m ? m.spineColor : '#B8743F';
+                return `
+                <article class="letter p-6 reveal" style="transition-delay:${Math.min(i, 5) * 60}ms">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white" style="background:${c}">${ic('mail', 'w-3.5 h-3.5')} ${esc(g.target)}${m ? ' 님께' : '에게'}</span>
+                        <time class="text-xs text-muted font-mono">${esc(g.date)}</time>
+                    </div>
+                    <p class="font-serif text-ink leading-8 mt-4">${esc(g.msg)}</p>
+                    <p class="font-hand text-2xl text-ink/80 text-right mt-3">— ${esc(g.name)}</p>
+                </article>`;
+            }).join('');
+            refreshIcons(); observeReveals();
+        }
+        function addGuestbookEntry(e) {
+            e.preventDefault();
+            const name = $('guestName').value.trim(), msg = $('guestMessage').value.trim();
+            if (!name || !msg) return;
+            const d = new Date();
+            guestbook.unshift({ name, target: $('guestTarget').value, msg, date: `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}` });
+            store.set(GB_KEY, guestbook);
+            e.target.reset();
+            renderGuestbook();
+            toast('따뜻한 편지가 서재에 도착했습니다');
+        }
+
+        /* ═════════════════ 글씨 크기 ═════════════════ */
+        function applyFontSize(on) {
+            document.documentElement.classList.toggle('large-text', on);
+            $('fontSizeLabel').textContent = on ? '기본 글씨' : '글씨 크게';
+            requestAnimationFrame(sizeCompare);
+        }
+        function toggleFontSize() {
+            const on = !document.documentElement.classList.contains('large-text');
+            applyFontSize(on); store.set('hjb-large-text', on);
+            toast(on ? '글씨를 크게 키웠습니다' : '기본 글씨 크기로 돌아왔습니다');
+        }
+
+        /* ═════════════════ 시작 ═════════════════ */
+        applyFontSize(store.get('hjb-large-text', false));
+        renderHeroShelf();
+        renderMembersGrid();
+        populateSelects();
+        renderGuestbook();
+        setVideoBtn(); setAudioBtn();
+        refreshIcons();
+        observeReveals();
+        route();
+    </script>
+</body>
+</html>
